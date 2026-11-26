@@ -1,6 +1,7 @@
 'use client'
 
 import { useId, type MouseEvent, type KeyboardEvent } from 'react'
+import { useLingui } from '@lingui/react/macro'
 
 type ConfirmDialogProps = {
   title: string
@@ -10,7 +11,14 @@ type ConfirmDialogProps = {
   onCancel: () => void
 }
 
-export function ConfirmDialog({ title, description, confirmLabel, onConfirm, onCancel }: ConfirmDialogProps) {
+export function ConfirmDialog({
+  title,
+  description,
+  confirmLabel,
+  onConfirm,
+  onCancel,
+}: ConfirmDialogProps) {
+  const { t } = useLingui()
   const titleId = useId()
   const descriptionId = useId()
 
@@ -40,7 +48,7 @@ export function ConfirmDialog({ title, description, confirmLabel, onConfirm, onC
         </header>
         <div className="modal-actions">
           <button type="button" className="button quiet" onClick={onCancel} autoFocus>
-            Cancel
+            {t`Cancel`}
           </button>
           <button type="button" className="button confirm-danger" onClick={onConfirm}>
             {confirmLabel}

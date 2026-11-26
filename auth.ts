@@ -25,9 +25,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Credentials({
       credentials: { email: {}, password: {} },
       async authorize(credentials) {
-        const parsed = z.object({ email: z.string().email(), password: z.string().min(1) }).safeParse(credentials)
+        const parsed = z
+          .object({ email: z.string().email(), password: z.string().min(1) })
+          .safeParse(credentials)
         if (!parsed.success) return null
-        const [user] = await db.select().from(users).where(eq(users.email, parsed.data.email.toLowerCase())).limit(1)
+        const [user] = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, parsed.data.email.toLowerCase()))
+          .limit(1)
         if (!user || !(await compare(parsed.data.password, user.passwordHash))) return null
         return { id: user.id, name: user.name, email: user.email }
       },

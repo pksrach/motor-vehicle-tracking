@@ -1,6 +1,7 @@
 # Project Specification: Multi-User Motor & Vehicle Maintenance Tracker
 
 ## 1. Project Overview & Tech Stack
+
 A multi-user full-stack web application to capture, manage, and visualize maintenance history for motorbikes and vehicles. Users manage their own vehicles and maintenance logs with strict row-level data isolation.
 
 - **Framework:** Next.js 15+ (App Router, Server Actions, Route Handlers)
@@ -12,6 +13,25 @@ A multi-user full-stack web application to capture, manage, and visualize mainte
 - **Styling & UI:** Tailwind CSS, Shadcn UI, Lucide React Icons
 - **PDF Export:** `@react-pdf/renderer` (or browser `@media print` clean table stylesheet)
 - **Validation:** Zod + React Hook Form
+
+## Localization
+
+The interface supports English (`en`) and Khmer (`km`) with Lingui. Use `<Trans>Text</Trans>` for
+JSX and `t` tagged templates for messages in code. For interpolated messages, put expressions in
+the template:
+
+```tsx
+;<Trans>Text</Trans>
+t`Welcome, ${name}.`
+```
+
+Edit translations in `locales/en/messages.po` and `locales/km/messages.po`;
+`locales/{locale}/messages.mjs` files are generated and should not be edited directly. Run
+`pnpm lingui:extract` after changing messages. It removes messages no longer used in source, keeps
+translations when a message remains unchanged, and adds new or changed messages for translation.
+Then run `pnpm lingui:compile`. The build runs both commands automatically and fails if a Khmer
+translation is missing. The language selector saves the choice in a cookie. Kantumruy Pro font
+weights are loaded from `public/fonts/` and applied whenever Khmer is selected.
 
 ---
 
@@ -48,6 +68,7 @@ A multi-user full-stack web application to capture, manage, and visualize mainte
 ```
 
 ### Security & Multi-Tenant Isolation Rules
+
 1. **Never trust client-supplied `userId`:** Always resolve `userId` on the server via `const session = await auth()`.
 2. **Ownership Verification on Mutations:** Before updating or deleting a `Vehicle` or `MaintenanceRecord`, verify that the record exists AND `record.userId === session.user.id`.
 3. **Atomic Master-Detail Writes:** Use `prisma.$transaction()` when creating or updating a maintenance record and its child detail items so partial writes never occur.
@@ -86,6 +107,7 @@ pnpm dlx shadcn@latest add button input label card dialog select table badge sep
 ```
 
 ### Environment Variables (`.env`)
+
 ```env
 DATABASE_URL="postgresql://postgres:password@localhost:5432/vehicle_tracker?schema=public"
 AUTH_SECRET="replace-with-openssl-rand-base64-32"
@@ -161,6 +183,7 @@ model MaintenanceItem {
 ```
 
 Run migration after saving the schema:
+
 ```bash
 pnpm dlx prisma migrate dev --name init_vehicle_maintenance
 ```
@@ -208,6 +231,7 @@ src/
 ## 6. Key Functional Requirements & UI Specifications
 
 ### A. Master-Detail Maintenance Form (`maintenance-form-dialog.tsx`)
+
 - **Master Fields:**
   - `vehicleId`: Dropdown pre-populated from the logged-in user's `Vehicle` table (with a quick "+ New Vehicle" button).
   - `serviceDate`: Date picker (stored as `DateTime`, formatted as `DD-MM-YYYY`).
@@ -224,17 +248,19 @@ src/
   - **Delete:** Confirmation dialog before deleting the `MaintenanceRecord` (cascades to `MaintenanceItem`).
 
 ### B. Timeline Visualization: Bottom-to-Top (`timeline-view.tsx`) & UX Recommendation
+
 - **Requested Bottom-to-Top Single-Line Timeline:**
   - Query records ordered by `serviceDate ASC` (oldest at the bottom, newest at the top — achieved via `flex-col-reverse` on the container or sorting `serviceDate DESC` so the top node is the latest service and the vertical line connects downward to the oldest service at the bottom).
   - **Visual Structure:**
     - A continuous vertical line (`border-l-2 border-primary`) running along the left side with circular milestone nodes at each `serviceDate`.
     - Each node displays the **Date Badge** (`26-11-2026`), a card listing every **Remark** alongside its **USD** and **KHR** prices, the **Visit Total**, and **Edit / Delete** action buttons.
 - **Recommended UX Enhancements (Best Practice):**
-  1. **Top Summary KPI Bar:** Above the timeline, show 3 compact cards: *Total Service Visits*, *Total Spent (USD)*, and *Total Spent (KHR)* for that vehicle.
+  1. **Top Summary KPI Bar:** Above the timeline, show 3 compact cards: _Total Service Visits_, _Total Spent (USD)_, and _Total Spent (KHR)_ for that vehicle.
   2. **Search / Part Filter:** A quick filter input (e.g., typing `"oil"` or `"tire"`) that filters the timeline nodes so the user can immediately see when a specific part was last replaced and how many days ago it happened.
   3. **Newest-on-Top with Bottom-to-Top Growth Visual:** Keep the newest date (`26-11-2026`) at the top of the screen so users don't have to scroll past years of history to see their latest maintenance, while styling the vertical connector line with an upward arrow (`↑`) indicating chronological progression from bottom (oldest: `26-10-2026`) to top (latest: `26-11-2026`).
 
 ### C. Tabular PDF Export (`vehicle-report-pdf.tsx` & `/vehicles/[vehicleId]/print`)
+
 - Triggered via an **"Export PDF"** button on the vehicle detail page.
 - Renders a formal, structured **Table List** (instead of the timeline UI) containing:
   - **Header:** Vehicle Name (e.g., `Honda Dream 2017`), Plate Number, Export Date, and Owner Name.
@@ -246,30 +272,27 @@ src/
 ## 7. Server Action Reference Implementation (`src/actions/maintenance.actions.ts`)
 
 ```typescript
-"use server";
+'use server'
 
-import { revalidatePath } from "next/cache";
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { maintenanceSchema, MaintenanceInput } from "@/lib/validations";
+import { revalidatePath } from 'next/cache'
+import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+import { maintenanceSchema, MaintenanceInput } from '@/lib/validations'
 
-export async function upsertMaintenanceRecord(
-  data: MaintenanceInput,
-  recordId?: string
-) {
-  const session = await auth();
+export async function upsertMaintenanceRecord(data: MaintenanceInput, recordId?: string) {
+  const session = await auth()
   if (!session?.user?.id) {
-    throw new Error("Unauthorized");
+    throw new Error('Unauthorized')
   }
-  const userId = session.user.id;
-  const parsed = maintenanceSchema.parse(data);
+  const userId = session.user.id
+  const parsed = maintenanceSchema.parse(data)
 
   // 1. Verify vehicle belongs to current user
   const vehicle = await prisma.vehicle.findFirst({
     where: { id: parsed.vehicleId, userId },
-  });
+  })
   if (!vehicle) {
-    throw new Error("Vehicle not found or access denied");
+    throw new Error('Vehicle not found or access denied')
   }
 
   // 2. Atomic Master-Detail transaction
@@ -277,12 +300,12 @@ export async function upsertMaintenanceRecord(
     if (recordId) {
       const existing = await tx.maintenanceRecord.findFirst({
         where: { id: recordId, userId },
-      });
-      if (!existing) throw new Error("Record not found or access denied");
+      })
+      if (!existing) throw new Error('Record not found or access denied')
 
       await tx.maintenanceItem.deleteMany({
         where: { maintenanceRecordId: recordId },
-      });
+      })
 
       await tx.maintenanceRecord.update({
         where: { id: recordId },
@@ -297,7 +320,7 @@ export async function upsertMaintenanceRecord(
             })),
           },
         },
-      });
+      })
     } else {
       await tx.maintenanceRecord.create({
         data: {
@@ -312,11 +335,25 @@ export async function upsertMaintenanceRecord(
             })),
           },
         },
-      });
+      })
     }
-  });
+  })
 
-  revalidatePath(`/vehicles/${parsed.vehicleId}`); }  export async function deleteMaintenanceRecord(recordId: string) { const session = await auth(); if (!session?.user?.id) { throw new Error("Unauthorized"); }  const existing = await prisma.maintenanceRecord.findFirst({ where: { id: recordId, userId: session.user.id }, }); if (!existing) { throw new Error("Record not found or access denied"); }  await prisma.maintenanceRecord.delete({ where: { id: recordId }, });  revalidatePath(`/vehicles/${existing.vehicleId}`);
+  revalidatePath(`/vehicles/${parsed.vehicleId}`)
+}
+export async function deleteMaintenanceRecord(recordId: string) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized')
+  }
+  const existing = await prisma.maintenanceRecord.findFirst({
+    where: { id: recordId, userId: session.user.id },
+  })
+  if (!existing) {
+    throw new Error('Record not found or access denied')
+  }
+  await prisma.maintenanceRecord.delete({ where: { id: recordId } })
+  revalidatePath(`/vehicles/${existing.vehicleId}`)
 }
 ```
 
@@ -324,11 +361,11 @@ export async function upsertMaintenanceRecord(
 
 ## 8. Development Timeline & Execution Phases
 
-| Phase | Duration | Deliverables & Milestones |
-| :--- | :--- | :--- |
-| **Phase 1: Setup & Database** | Day 1 | Run initialization script, configure PostgreSQL connection, apply `prisma/schema.prisma` migrations, and set up Shadcn UI components. |
-| **Phase 2: Authentication & Isolation** | Day 2 | Configure Auth.js (`login` & `register`), protect routes via `middleware.ts`, and verify strict `userId` session scoping across queries. |
-| **Phase 3: Vehicle Management** | Day 3 | Build vehicle creation, editing, listing, and deletion (`vehicle.actions.ts`) so users can register vehicles (e.g., *Honda Dream 2017*). |
-| **Phase 4: Master-Detail CRUD** | Days 4–5 | Build `maintenance-form-dialog.tsx` with dynamic remark/USD/KHR rows, live subtotals, transactional create/edit, and delete confirmation. |
-| **Phase 5: Timeline View & UX** | Day 6 | Implement the bottom-to-top vertical timeline (`timeline-view.tsx`), KPI summary cards (Total USD/KHR), and keyword filter for parts/remarks. |
-| **Phase 6: Tabular PDF Export & QA** | Day 7 | Implement `@react-pdf/renderer` tabular export per vehicle with grand totals, test multi-user isolation (User A cannot access User B), and deploy. |
+| Phase                                   | Duration | Deliverables & Milestones                                                                                                                          |
+| :-------------------------------------- | :------- | :------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Phase 1: Setup & Database**           | Day 1    | Run initialization script, configure PostgreSQL connection, apply `prisma/schema.prisma` migrations, and set up Shadcn UI components.              |
+| **Phase 2: Authentication & Isolation** | Day 2    | Configure Auth.js (`login` & `register`), protect routes via `middleware.ts`, and verify strict `userId` session scoping across queries.           |
+| **Phase 3: Vehicle Management**         | Day 3    | Build vehicle creation, editing, listing, and deletion (`vehicle.actions.ts`) so users can register vehicles (e.g., _Honda Dream 2017_).           |
+| **Phase 4: Master-Detail CRUD**         | Days 4–5 | Build `maintenance-form-dialog.tsx` with dynamic remark/USD/KHR rows, live subtotals, transactional create/edit, and delete confirmation.          |
+| **Phase 5: Timeline View & UX**         | Day 6    | Implement the bottom-to-top vertical timeline (`timeline-view.tsx`), KPI summary cards (Total USD/KHR), and keyword filter for parts/remarks.      |
+| **Phase 6: Tabular PDF Export & QA**    | Day 7    | Implement `@react-pdf/renderer` tabular export per vehicle with grand totals, test multi-user isolation (User A cannot access User B), and deploy. |

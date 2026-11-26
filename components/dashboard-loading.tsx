@@ -1,8 +1,16 @@
 'use client'
 
+import { useLingui } from '@lingui/react/macro'
+
 export function DashboardLoading() {
+  const { t } = useLingui()
   return (
-    <div className="shell dashboard-skeleton" role="status" aria-label="Loading your vehicle dashboard" aria-busy="true">
+    <div
+      className="shell dashboard-skeleton"
+      role="status"
+      aria-label={t`Loading your vehicle dashboard`}
+      aria-busy="true"
+    >
       <aside className="sidebar" aria-hidden="true">
         <div className="loading-brand">
           <span className="loading-block loading-brand-mark" />

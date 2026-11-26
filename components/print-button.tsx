@@ -1,7 +1,13 @@
 'use client'
 
 import { Printer } from 'lucide-react'
+import { useLingui } from '@lingui/react/macro'
 
 export function PrintButton() {
-  return <button className="button primary" onClick={() => window.print()}><Printer size={16} /> Print / Save PDF</button>
+  const { t } = useLingui()
+  return (
+    <button className="button primary" onClick={() => window.print()}>
+      <Printer size={16} /> {t`Print / Save PDF`}
+    </button>
+  )
 }

@@ -1,0 +1,20 @@
+import { defineConfig, globalIgnores } from 'eslint/config'
+import nextVitals from 'eslint-config-next/core-web-vitals'
+import nextTypescript from 'eslint-config-next/typescript'
+
+const config = defineConfig([
+  ...nextVitals,
+  ...nextTypescript,
+  globalIgnores([
+    '.next/**',
+    'node_modules/**',
+    'coverage/**',
+    'next-env.d.ts',
+    'locales/**/messages.mjs',
+    'tsconfig.tsbuildinfo',
+    '*.yaml',
+    'locales/**',
+  ]),
+])
+
+export default config

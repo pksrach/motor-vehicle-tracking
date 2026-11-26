@@ -1,26 +1,81 @@
-import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { and, asc, eq } from 'drizzle-orm'
-import { ArrowLeft } from 'lucide-react'
-import { PrintButton } from '@/components/print-button'
+import { cookies } from 'next/headers'
+import { PrintReport as PrintReportView } from '@/components/print-report'
 import { auth } from '@/auth'
 import { db } from '@/lib/db'
 import { maintenanceItems, maintenanceRecords, vehicles } from '@/lib/db/schema'
-
-const formatDate = (date: Date) => new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date)
+import { isLocale, type Locale } from '@/lib/i18n'
 
 export default async function PrintReport({ params }: { params: Promise<{ vehicleId: string }> }) {
   const session = await auth()
   if (!session?.user?.id) redirect('/login')
+  const cookieStore = await cookies()
+  const localeValue = cookieStore.get('locale')?.value ?? 'en'
+  const locale: Locale = isLocale(localeValue) ? localeValue : 'en'
+  const formatDate = (date: Date) =>
+    new Intl.DateTimeFormat(locale === 'km' ? 'km-KH' : 'en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).format(date)
   const { vehicleId } = await params
-  const [vehicle] = await db.select().from(vehicles).where(and(eq(vehicles.id, vehicleId), eq(vehicles.userId, session.user.id))).limit(1)
+  const [vehicle] = await db
+    .select()
+    .from(vehicles)
+    .where(and(eq(vehicles.id, vehicleId), eq(vehicles.userId, session.user.id)))
+    .limit(1)
   if (!vehicle) notFound()
-  const records = await db.select().from(maintenanceRecords).where(and(eq(maintenanceRecords.vehicleId, vehicle.id), eq(maintenanceRecords.userId, session.user.id))).orderBy(asc(maintenanceRecords.serviceDate))
-  const entries = records.length ? await db.select({ recordId: maintenanceItems.maintenanceRecordId, remark: maintenanceItems.remark, priceUsd: maintenanceItems.priceUsd, priceKhr: maintenanceItems.priceKhr }).from(maintenanceItems).innerJoin(maintenanceRecords, eq(maintenanceItems.maintenanceRecordId, maintenanceRecords.id)).where(and(eq(maintenanceRecords.vehicleId, vehicle.id), eq(maintenanceRecords.userId, session.user.id))).orderBy(asc(maintenanceRecords.serviceDate)) : []
+  const records = await db
+    .select()
+    .from(maintenanceRecords)
+    .where(
+      and(
+        eq(maintenanceRecords.vehicleId, vehicle.id),
+        eq(maintenanceRecords.userId, session.user.id),
+      ),
+    )
+    .orderBy(asc(maintenanceRecords.serviceDate))
+  const entries = records.length
+    ? await db
+        .select({
+          recordId: maintenanceItems.maintenanceRecordId,
+          remark: maintenanceItems.remark,
+          priceUsd: maintenanceItems.priceUsd,
+          priceKhr: maintenanceItems.priceKhr,
+        })
+        .from(maintenanceItems)
+        .innerJoin(
+          maintenanceRecords,
+          eq(maintenanceItems.maintenanceRecordId, maintenanceRecords.id),
+        )
+        .where(
+          and(
+            eq(maintenanceRecords.vehicleId, vehicle.id),
+            eq(maintenanceRecords.userId, session.user.id),
+          ),
+        )
+        .orderBy(asc(maintenanceRecords.serviceDate))
+    : []
   const recordDates = new Map(records.map((record) => [record.id, formatDate(record.serviceDate)]))
-  const reportEntries = entries.map((item) => ({ ...item, date: recordDates.get(item.recordId) || '—' }))
-  const dateRowSpans = new Map<string, number>()
-  for (const item of reportEntries) dateRowSpans.set(item.date, (dateRowSpans.get(item.date) ?? 0) + 1)
-  const totals = entries.reduce((total, item) => ({ usd: total.usd + Number(item.priceUsd), khr: total.khr + Number(item.priceKhr) }), { usd: 0, khr: 0 })
-  return <main className="print-page"><div className="print-toolbar"><Link href="/" className="button quiet"><ArrowLeft size={16} /> Back to overview</Link><PrintButton /></div><div className="print-sheet"><div className="print-brand">MOTIVE <span>· VEHICLE CARE</span></div><h1>Maintenance report</h1><p className="print-subtitle">A complete service record for this vehicle.</p><div className="print-meta"><div><span>VEHICLE</span><strong>{vehicle.name}</strong></div><div><span>PLATE NUMBER</span><strong>{vehicle.plateNumber || '—'}</strong></div><div><span>OWNER</span><strong>{session.user.name || session.user.email}</strong></div><div><span>EXPORTED</span><strong>{formatDate(new Date())}</strong></div></div><table className="report-table"><thead><tr><th>#</th><th>Date</th><th>Maintenance remark / part</th><th>USD ($)</th><th>KHR (៛)</th></tr></thead><tbody>{reportEntries.map((item, index) => { const firstForDate = index === 0 || reportEntries[index - 1].date !== item.date; return <tr key={`${item.recordId}-${index}`}><td>{String(index + 1).padStart(2, '0')}</td>{firstForDate && <td style={{ verticalAlign: 'top' }} rowSpan={dateRowSpans.get(item.date) ?? 1}>{item.date}</td>}<td>{item.remark}</td><td>{Number(item.priceUsd).toFixed(2)}</td><td>{Number(item.priceKhr).toLocaleString('en-US')}</td></tr> })}{!entries.length && <tr><td colSpan={5} className="report-empty">No maintenance entries recorded yet.</td></tr>}<tr className="report-total"><td colSpan={3}>GRAND TOTAL</td><td>{totals.usd.toFixed(2)}</td><td>{totals.khr.toLocaleString('en-US')}</td></tr></tbody></table><div className="print-foot">Generated by Motive · Private vehicle care</div></div></main>
+  const reportEntries = entries.map((item) => ({
+    ...item,
+    date: recordDates.get(item.recordId) || '—',
+  }))
+  const totals = entries.reduce(
+    (total, item) => ({
+      usd: total.usd + Number(item.priceUsd),
+      khr: total.khr + Number(item.priceKhr),
+    }),
+    { usd: 0, khr: 0 },
+  )
+  return (
+    <PrintReportView
+      vehicle={{ name: vehicle.name, plateNumber: vehicle.plateNumber }}
+      owner={session.user.name || session.user.email || ''}
+      exportedAt={formatDate(new Date())}
+      entries={reportEntries}
+      totals={totals}
+    />
+  )
 }
