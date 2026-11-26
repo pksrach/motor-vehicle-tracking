@@ -179,6 +179,55 @@ html {
   .nav-item.active::before { animation: none; }
 }
 
+.dashboard-skeleton { color: #ecece8; }
+.dashboard-skeleton .loading-block { position: relative; display: block; overflow: hidden; border-radius: 6px; background: #252c36; }
+.dashboard-skeleton .loading-block::after { position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, #ffffff12, transparent); content: ""; animation: dashboard-shimmer 1.5s ease-in-out infinite; }
+.loading-brand { display: flex; align-items: center; gap: 11px; margin: 0 0 52px 5px; }
+.loading-brand-mark { width: 36px; height: 36px; }
+.loading-brand-copy { display: grid; gap: 6px; }
+.loading-brand-name { width: 74px; height: 12px; }
+.loading-brand-caption { width: 56px; height: 6px; }
+.loading-nav-label { width: 74px; height: 7px; margin: 0 10px 13px; }
+.loading-nav-item { width: 100%; height: 38px; margin: 2px 0; }
+.loading-account { width: 100%; height: 46px; }
+.loading-crumb { width: 115px; height: 9px; }
+.loading-action { width: 118px; height: 35px; }
+.loading-welcome-copy { display: grid; gap: 10px; }
+.loading-eyebrow { width: 170px; height: 8px; }
+.loading-title { width: 260px; height: 25px; }
+.loading-description { width: 300px; height: 9px; }
+.loading-stat-icon { position: absolute !important; top: 15px; right: 15px; width: 29px; height: 29px; }
+.loading-stat-label { width: 82px; height: 7px; }
+.loading-stat-value { width: 96px; height: 22px; margin-top: 16px; }
+.loading-stat-note { width: 112px; height: 7px; margin-top: 7px; }
+.loading-section-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 13px; }
+.loading-heading { width: 105px; height: 18px; }
+.loading-vehicle { height: 64px; }
+.loading-history-heading { margin-top: 30px; }
+.loading-search { width: 180px; height: 32px; }
+.loading-record { height: 116px; margin-bottom: 11px; border: 1px solid #2a313c; border-radius: 9px !important; }
+.loading-insight { min-height: 255px; border: 1px solid #2b323d; border-radius: 10px !important; }
+.loading-tip { min-height: 160px; border: 1px solid #2b323d; border-radius: 10px !important; }
+@keyframes dashboard-shimmer {
+  to { transform: translateX(100%); }
+}
+@media (max-width: 800px) {
+  .loading-brand { justify-content: center; margin: 0 auto 44px; }
+  .loading-brand-copy, .loading-nav-label { display: none; }
+  .loading-nav-item { width: 44px; align-self: center; }
+}
+@media (max-width: 600px) {
+  .loading-brand, .loading-nav-label, .loading-nav-item, .loading-account { display: none; }
+  .loading-description { max-width: 80vw; }
+  .loading-title { max-width: 65vw; }
+  .loading-action { width: 95px; }
+  .loading-record { height: 100px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-skeleton .loading-block::after { animation: none; }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -186,4 +235,57 @@ html {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@media (display-mode: standalone) {
+  body {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .main {
+    padding-bottom: calc(50px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 600px) {
+  .search-field input,
+  .form-label input,
+  .form-label textarea {
+    font-size: 16px;
+  }
+}
+
+.form-label > .form-label-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #dadddf;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: normal;
+}
+
+.form-label > .form-label-heading > span {
+  color: #848d99;
+  font-size: 8px;
+  letter-spacing: 0.7px;
+}
+
+.confirm-dialog .modal-header {
+  margin-bottom: 0;
+}
+
+.confirm-dialog .modal-actions {
+  margin-top: 22px;
+}
+
+.button.confirm-danger {
+  border-color: #9c4a43;
+  background: #873a35;
+  color: #fff4f1;
+}
+
+.button.confirm-danger:hover {
+  background: #9a443e;
+  filter: none;
 }

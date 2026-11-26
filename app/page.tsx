@@ -9,8 +9,10 @@ export default async function Home() {
   const session = await auth()
   if (!session?.user?.id) redirect('/login')
   const userId = session.user.id
-  const vehicleRows = await db.select().from(vehicles).where(eq(vehicles.userId, userId)).orderBy(desc(vehicles.createdAt))
-  const records = await db.select().from(maintenanceRecords).where(eq(maintenanceRecords.userId, userId)).orderBy(desc(maintenanceRecords.serviceDate))
+  const [vehicleRows, records] = await Promise.all([
+    db.select().from(vehicles).where(eq(vehicles.userId, userId)).orderBy(desc(vehicles.createdAt)),
+    db.select().from(maintenanceRecords).where(eq(maintenanceRecords.userId, userId)).orderBy(desc(maintenanceRecords.serviceDate)),
+  ])
   const recordIds = records.map((record) => record.id)
   const itemRows = recordIds.length
     ? await db.select({ id: maintenanceItems.id, maintenanceRecordId: maintenanceItems.maintenanceRecordId, remark: maintenanceItems.remark, priceUsd: maintenanceItems.priceUsd, priceKhr: maintenanceItems.priceKhr }).from(maintenanceItems).innerJoin(maintenanceRecords, eq(maintenanceItems.maintenanceRecordId, maintenanceRecords.id)).where(eq(maintenanceRecords.userId, userId))
@@ -27,5 +29,5 @@ export default async function Home() {
       items: itemRows.filter((item) => item.maintenanceRecordId === record.id),
     })),
   }))
-  return <TrackerDashboard vehicles={payload} userName={session.user.name || session.user.email || 'Driver'} />
+  return <TrackerDashboard vehicles={payload} userId={userId} userName={session.user.name || session.user.email || 'Driver'} />
 }
