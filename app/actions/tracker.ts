@@ -24,6 +24,14 @@ export async function createVehicle(input: unknown) {
   revalidatePath('/')
 }
 
+export async function updateVehicle(id: string, input: unknown) {
+  const userId = await currentUserId()
+  const data = vehicleSchema.parse(input)
+  const [updated] = await db.update(vehicles).set({ name: data.name, plateNumber: data.plateNumber || null, notes: data.notes || null }).where(and(eq(vehicles.id, id), eq(vehicles.userId, userId))).returning({ id: vehicles.id })
+  if (!updated) throw new Error('Vehicle not found or access denied')
+  revalidatePath('/')
+}
+
 export async function deleteVehicle(id: string) {
   const userId = await currentUserId()
   await db.delete(vehicles).where(and(eq(vehicles.id, id), eq(vehicles.userId, userId)))
