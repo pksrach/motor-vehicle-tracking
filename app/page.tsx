@@ -1,16 +1,31 @@
-export default function Home() {
-  return (
-    <div className="flex min-h-screen items-center justify-center font-sans">
-      <main className="flex w-full max-w-3xl flex-col items-center gap-8 px-6 py-16 text-center sm:items-start sm:text-left">
-        <div className="flex flex-col gap-4">
-          <h1 className="text-4xl font-bold tracking-tight">
-            Motor & Vehicle Tracking
-          </h1>
-          <p className="max-w-md text-lg text-muted-foreground">
-            To get started, send a prompt or modify this page directly.
-          </p>
-        </div>
-      </main>
-    </div>
-  );
+import { redirect } from 'next/navigation'
+import { and, desc, eq } from 'drizzle-orm'
+import { auth } from '@/auth'
+import { db } from '@/lib/db'
+import { maintenanceItems, maintenanceRecords, vehicles } from '@/lib/db/schema'
+import { TrackerDashboard } from '@/components/tracker-dashboard'
+
+export default async function Home() {
+  const session = await auth()
+  if (!session?.user?.id) redirect('/login')
+  const userId = session.user.id
+  const vehicleRows = await db.select().from(vehicles).where(eq(vehicles.userId, userId)).orderBy(desc(vehicles.createdAt))
+  const records = await db.select().from(maintenanceRecords).where(eq(maintenanceRecords.userId, userId)).orderBy(desc(maintenanceRecords.serviceDate))
+  const recordIds = records.map((record) => record.id)
+  const itemRows = recordIds.length
+    ? await db.select({ id: maintenanceItems.id, maintenanceRecordId: maintenanceItems.maintenanceRecordId, remark: maintenanceItems.remark, priceUsd: maintenanceItems.priceUsd, priceKhr: maintenanceItems.priceKhr }).from(maintenanceItems).innerJoin(maintenanceRecords, eq(maintenanceItems.maintenanceRecordId, maintenanceRecords.id)).where(eq(maintenanceRecords.userId, userId))
+    : []
+  const payload = vehicleRows.map((vehicle) => ({
+    id: vehicle.id,
+    name: vehicle.name,
+    plateNumber: vehicle.plateNumber,
+    notes: vehicle.notes,
+    records: records.filter((record) => record.vehicleId === vehicle.id).map((record) => ({
+      id: record.id,
+      serviceDate: record.serviceDate.toISOString(),
+      odometerKm: record.odometerKm,
+      items: itemRows.filter((item) => item.maintenanceRecordId === record.id),
+    })),
+  }))
+  return <TrackerDashboard vehicles={payload} userName={session.user.name || session.user.email || 'Driver'} />
 }
