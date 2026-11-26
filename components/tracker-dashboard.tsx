@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, useTransition } from 'react'
+import { useEffect, useMemo, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { signOut } from 'next-auth/react'
 import { Activity, ArrowDownRight, ArrowUpRight, Bike, CarFront, Check, ChevronDown, CirclePlus, Clock3, FileText, Gauge, Search, Settings2, ShieldCheck, Sparkles, Trash2, Wrench, X } from 'lucide-react'
@@ -18,6 +18,11 @@ const totalsFor = (record: Record) => record.items.reduce((totals, item) => ({ u
 export function TrackerDashboard({ vehicles: initialVehicles, userName }: { vehicles: Vehicle[]; userName: string }) {
   const [vehicles, setVehicles] = useState(initialVehicles)
   const [selectedId, setSelectedId] = useState(initialVehicles[0]?.id ?? '')
+  const [currentTime, setCurrentTime] = useState<Date | null>(null)
+
+  useEffect(() => {
+    setCurrentTime(new Date())
+  }, [])
   const [query, setQuery] = useState('')
   const [dialog, setDialog] = useState<'vehicle' | 'service' | null>(null)
   const [editing, setEditing] = useState<Record | null>(null)
@@ -31,7 +36,8 @@ export function TrackerDashboard({ vehicles: initialVehicles, userName }: { vehi
   const filtered = useMemo(() => records.filter((record) => record.items.some((item) => item.remark.toLowerCase().includes(query.toLowerCase()))), [records, query])
   const latest = records[0]
   const newestDate = latest ? new Date(latest.serviceDate) : null
-  const daysSince = newestDate ? Math.max(0, Math.floor((Date.now() - newestDate.getTime()) / 86400000)) : null
+  const daysSince = newestDate && currentTime ? Math.max(0, Math.floor((currentTime.getTime() - newestDate.getTime()) / 86400000)) : null
+  const greeting = currentTime ? (currentTime.getHours() < 12 ? 'morning' : currentTime.getHours() < 18 ? 'afternoon' : 'evening') : null
 
   function run(action: () => Promise<void>, success: string) {
     setNotice('')
@@ -55,14 +61,14 @@ export function TrackerDashboard({ vehicles: initialVehicles, userName }: { vehi
 
     <main className="main" id="overview">
       <header className="topbar"><div className="crumb">Workspace <span>/</span> {activeSection === 'garage' ? 'My garage' : activeSection === 'timeline' ? 'Service history' : 'Overview'}</div><div className="top-actions"><span className="live-dot"><i /> All systems ready</span><button className="icon-button" aria-label="Settings"><Settings2 size={18} /></button></div></header>
-      <section className="welcome"><div><div className="eyebrow"><Sparkles size={13} /> YOUR GARAGE, IN GOOD ORDER</div><h1>Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, {userName.split(' ')[0]}.</h1><p>Stay ahead of every mile. Your vehicle care, all in one place.</p></div><button className="button primary" onClick={() => setDialog('service')} disabled={!selected}><CirclePlus size={17} /> Log a service</button></section>
+      <section className="welcome"><div><div className="eyebrow"><Sparkles size={13} /> YOUR GARAGE, IN GOOD ORDER</div><h1>{greeting ? `Good ${greeting}` : 'Welcome'}, {userName.split(' ')[0]}.</h1><p>Stay ahead of every mile. Your vehicle care, all in one place.</p></div><button className="button primary" onClick={() => setDialog('service')} disabled={!selected}><CirclePlus size={17} /> Log a service</button></section>
 
       {notice && <div className={`notice ${notice.includes('Error') || notice.includes('failed') ? 'error' : ''}`} role="status">{notice}</div>}
       <section className="stat-grid" aria-label="Maintenance summary">
         <Stat icon={<Wrench size={17} />} label="SERVICE VISITS" value={String(totalVisits).padStart(2, '0')} note={totalVisits ? `${totalVisits} recorded ${totalVisits === 1 ? 'visit' : 'visits'}` : 'Start your service history'} accent="amber" />
         <Stat icon={<ArrowUpRight size={17} />} label="TOTAL SPENT · USD" value={usd(totals.usd)} note="Across all service visits" accent="green" />
         <Stat icon={<Activity size={17} />} label="TOTAL SPENT · KHR" value={khr(totals.khr)} note="Cambodian riel" accent="blue" />
-        <Stat icon={<Clock3 size={17} />} label="LAST SERVICE" value={latest ? `${daysSince}d ago` : '—'} note={latest ? dateLabel(latest.serviceDate) : 'No visits yet'} accent="violet" />
+        <Stat icon={<Clock3 size={17} />} label="LAST SERVICE" value={latest && daysSince !== null ? `${daysSince}d ago` : '—'} note={latest ? dateLabel(latest.serviceDate) : 'No visits yet'} accent="violet" />
       </section>
 
       <section className="content-grid">
