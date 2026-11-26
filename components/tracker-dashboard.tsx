@@ -22,6 +22,7 @@ export function TrackerDashboard({ vehicles: initialVehicles, userName }: { vehi
   const [dialog, setDialog] = useState<'vehicle' | 'service' | null>(null)
   const [editing, setEditing] = useState<Record | null>(null)
   const [notice, setNotice] = useState('')
+  const [activeSection, setActiveSection] = useState<'overview' | 'garage' | 'timeline'>('overview')
   const [pending, startTransition] = useTransition()
   const selected = vehicles.find((vehicle) => vehicle.id === selectedId) ?? vehicles[0]
   const records = selected?.records ?? []
@@ -44,16 +45,16 @@ export function TrackerDashboard({ vehicles: initialVehicles, userName }: { vehi
     <aside className="sidebar">
       <Link href="/" className="brand"><span className="brand-mark"><Gauge size={19} /></span><span>motive<span className="brand-dot">.</span><small>VEHICLE CARE</small></span></Link>
       <div className="nav-label">WORKSPACE</div>
-      <a className="nav-item active" href="#overview"><Activity size={17} /> Overview</a>
-      <a className="nav-item" href="#garage"><CarFront size={17} /> My garage <span className="nav-count">{vehicles.length}</span></a>
-      <a className="nav-item" href="#timeline"><Clock3 size={17} /> Service history</a>
+      <a className={`nav-item ${activeSection === 'overview' ? 'active' : ''}`} href="#overview" aria-current={activeSection === 'overview' ? 'location' : undefined} onClick={() => setActiveSection('overview')}><Activity size={17} /> Overview</a>
+      <a className={`nav-item ${activeSection === 'garage' ? 'active' : ''}`} href="#garage" aria-current={activeSection === 'garage' ? 'location' : undefined} onClick={() => setActiveSection('garage')}><CarFront size={17} /> My garage <span className="nav-count">{vehicles.length}</span></a>
+      <a className={`nav-item ${activeSection === 'timeline' ? 'active' : ''}`} href="#timeline" aria-current={activeSection === 'timeline' ? 'location' : undefined} onClick={() => setActiveSection('timeline')}><Clock3 size={17} /> Service history</a>
       <div className="sidebar-spacer" />
       <div className="secure-note"><ShieldCheck size={16} /><span>Your records are private<br />and secured to your account.</span></div>
       <button className="account" onClick={() => signOut({ callbackUrl: '/login' })}><span className="avatar">{userName.trim().charAt(0).toUpperCase()}</span><span className="account-name">{userName}<small>Personal workspace</small></span><ChevronDown size={15} /></button>
     </aside>
 
     <main className="main" id="overview">
-      <header className="topbar"><div className="crumb">Workspace <span>/</span> Overview</div><div className="top-actions"><span className="live-dot"><i /> All systems ready</span><button className="icon-button" aria-label="Settings"><Settings2 size={18} /></button></div></header>
+      <header className="topbar"><div className="crumb">Workspace <span>/</span> {activeSection === 'garage' ? 'My garage' : activeSection === 'timeline' ? 'Service history' : 'Overview'}</div><div className="top-actions"><span className="live-dot"><i /> All systems ready</span><button className="icon-button" aria-label="Settings"><Settings2 size={18} /></button></div></header>
       <section className="welcome"><div><div className="eyebrow"><Sparkles size={13} /> YOUR GARAGE, IN GOOD ORDER</div><h1>Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, {userName.split(' ')[0]}.</h1><p>Stay ahead of every mile. Your vehicle care, all in one place.</p></div><button className="button primary" onClick={() => setDialog('service')} disabled={!selected}><CirclePlus size={17} /> Log a service</button></section>
 
       {notice && <div className={`notice ${notice.includes('Error') || notice.includes('failed') ? 'error' : ''}`} role="status">{notice}</div>}
