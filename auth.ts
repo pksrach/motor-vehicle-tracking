@@ -9,6 +9,17 @@ import { users } from '@/lib/db/schema'
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET,
   session: { strategy: 'jwt' },
+  // The v0 preview runs in a cross-site iframe, so Lax cookies are omitted from auth requests there.
+  cookies: {
+    csrfToken: {
+      name: '__Host-authjs.csrf-token',
+      options: { httpOnly: true, sameSite: 'none', path: '/', secure: true },
+    },
+    sessionToken: {
+      name: '__Secure-authjs.session-token',
+      options: { httpOnly: true, sameSite: 'none', path: '/', secure: true },
+    },
+  },
   pages: { signIn: '/login' },
   providers: [
     Credentials({
