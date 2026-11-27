@@ -1,5 +1,5 @@
 import { notFound, redirect } from 'next/navigation'
-import { and, asc, eq } from 'drizzle-orm'
+import { and, desc, eq } from 'drizzle-orm'
 import { cookies } from 'next/headers'
 import { PrintReport as PrintReportView } from '@/components/print-report'
 import { auth } from '@/auth'
@@ -35,7 +35,7 @@ export default async function PrintReport({ params }: { params: Promise<{ vehicl
         eq(maintenanceRecords.userId, session.user.id),
       ),
     )
-    .orderBy(asc(maintenanceRecords.serviceDate))
+    .orderBy(desc(maintenanceRecords.serviceDate))
   const entries = records.length
     ? await db
         .select({
@@ -55,7 +55,7 @@ export default async function PrintReport({ params }: { params: Promise<{ vehicl
             eq(maintenanceRecords.userId, session.user.id),
           ),
         )
-        .orderBy(asc(maintenanceRecords.serviceDate))
+        .orderBy(desc(maintenanceRecords.serviceDate))
     : []
   const recordDates = new Map(records.map((record) => [record.id, formatDate(record.serviceDate)]))
   const reportEntries = entries.map((item) => ({
