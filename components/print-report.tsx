@@ -34,11 +34,12 @@ export function PrintReport({
   const numberLocale = locale === 'km' ? 'km-KH' : 'en-US'
   const usdNumber = (value: number) =>
     new Intl.NumberFormat(numberLocale, {
-      minimumFractionDigits: 2,
+      style: 'currency',
+      currency: 'USD',
       maximumFractionDigits: 3,
     }).format(value)
   const khrNumber = (value: number) =>
-    new Intl.NumberFormat(numberLocale, { maximumFractionDigits: 3 }).format(value)
+    `${new Intl.NumberFormat(numberLocale, { maximumFractionDigits: 3 }).format(value)} ៛`
   const dateRowSpans = new Map<string, number>()
   for (const item of entries) dateRowSpans.set(item.date, (dateRowSpans.get(item.date) ?? 0) + 1)
 
