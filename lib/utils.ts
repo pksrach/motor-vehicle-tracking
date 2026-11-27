@@ -52,12 +52,16 @@ export function usd(value: number, locale: Locale) {
   return new Intl.NumberFormat(formatLocale(locale), {
     style: 'currency',
     currency: 'USD',
+    minimumFractionDigits: 6,
     maximumFractionDigits: 6,
   }).format(value)
 }
 
 export function khr(value: number, locale: Locale) {
-  return `${new Intl.NumberFormat(formatLocale(locale), { maximumFractionDigits: 6 }).format(value)} ៛`
+  return `${new Intl.NumberFormat(formatLocale(locale), {
+    minimumFractionDigits: 6,
+    maximumFractionDigits: 6,
+  }).format(value)} ៛`
 }
 
 export function dateLabel(value: string, locale: Locale) {
