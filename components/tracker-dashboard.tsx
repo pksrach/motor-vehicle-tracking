@@ -31,6 +31,7 @@ import {
 import {
   createVehicle,
   deleteVehicle,
+  getVehicleServiceHistory,
   removeMaintenance,
   saveMaintenance,
   updateVehicle,
@@ -62,7 +63,6 @@ type Vehicle = {
   name: string
   plateNumber: string | null
   notes: string | null
-  records: Record[]
 }
 type Confirmation =
   { type: 'record'; recordId: string } | { type: 'vehicle'; vehicleId: string; vehicleName: string }
@@ -89,6 +89,8 @@ export function TrackerDashboard({
   const [vehicles] = useState(initialVehicles)
   const [selectedId, setSelectedId] = useState(initialVehicles[0]?.id ?? '')
   const [selectionReady, setSelectionReady] = useState(false)
+  const [history, setHistory] = useState<{ vehicleId: string; records: Record[] } | null>(null)
+  const [historyLoadErrorFor, setHistoryLoadErrorFor] = useState<string | null>(null)
   const [notice, setNotice] = useState('')
   const [noticeIsError, setNoticeIsError] = useState(false)
   const [currentTime, setCurrentTime] = useState<Date | null>(null)
@@ -123,7 +125,37 @@ export function TrackerDashboard({
   const displayName = userName === 'Driver' ? t`Driver` : userName
   const vehicleName = confirmation?.type === 'vehicle' ? confirmation.vehicleName : ''
   const selected = vehicles.find((vehicle) => vehicle.id === selectedId) ?? vehicles[0]
-  const records = useMemo(() => selected?.records ?? [], [selected])
+  const selectedVehicleId = selected?.id
+  const records = useMemo(
+    () => (history?.vehicleId === selectedVehicleId ? history.records : []),
+    [history, selectedVehicleId],
+  )
+  const historyLoading = Boolean(
+    selectionReady &&
+    selectedVehicleId &&
+    history?.vehicleId !== selectedVehicleId &&
+    historyLoadErrorFor !== selectedVehicleId,
+  )
+  const historyLoadError = Boolean(selectedVehicleId && historyLoadErrorFor === selectedVehicleId)
+
+  useEffect(() => {
+    if (!selectionReady || !selectedVehicleId) return
+    let cancelled = false
+    getVehicleServiceHistory(selectedVehicleId)
+      .then((loadedHistory) => {
+        if (cancelled) return
+        setHistory({ vehicleId: selectedVehicleId, records: loadedHistory })
+        setHistoryLoadErrorFor(null)
+      })
+      .catch(() => {
+        if (cancelled) return
+        setHistoryLoadErrorFor(selectedVehicleId)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [selectionReady, selectedVehicleId])
+
   const totalVisits = records.length
   const totals = records.reduce(
     (sum, record) => {
@@ -164,6 +196,7 @@ export function TrackerDashboard({
       window.localStorage.setItem(storageKey, id)
       setNotice('')
       setNoticeIsError(false)
+      setHistoryLoadErrorFor(null)
     } catch {
       setNotice(
         t`Error: Browser storage is unavailable, so this selection will not be remembered after refresh.`,
@@ -296,9 +329,12 @@ export function TrackerDashboard({
           </button>
         </section>
 
-        {notice && (
-          <div className={`notice ${noticeIsError ? 'error' : ''}`} role="status">
-            {notice}
+        {(notice || historyLoadError) && (
+          <div
+            className={`notice ${noticeIsError || historyLoadError ? 'error' : ''}`}
+            role="status"
+          >
+            {historyLoadError ? t`Could not load service history. Please try again.` : notice}
           </div>
         )}
         <section className="stat-grid" aria-label={t`Maintenance summary`}>
@@ -372,8 +408,16 @@ export function TrackerDashboard({
                     <span className="vehicle-info">
                       <strong>{vehicle.name}</strong>
                       <small>
-                        {vehicle.plateNumber || t`No plate number`} <i /> {vehicle.records.length}{' '}
-                        {vehicleVisits(vehicle.records.length)}
+                        {vehicle.plateNumber || t`No plate number`}
+                        {vehicle.id === selected?.id && (
+                          <>
+                            {' '}
+                            <i />{' '}
+                            {historyLoading
+                              ? '…'
+                              : `${records.length} ${vehicleVisits(records.length)}`}
+                          </>
+                        )}
                       </small>
                     </span>
                     <span className="vehicle-select">
@@ -439,6 +483,13 @@ export function TrackerDashboard({
                 </div>
                 <strong>{t`Your maintenance timeline starts here`}</strong>
                 <span>{t`Add a vehicle, then log each service visit and its parts.`}</span>
+              </div>
+            ) : historyLoading ? (
+              <div className="empty-history" aria-live="polite">
+                <div className="empty-icon">
+                  <Wrench size={22} />
+                </div>
+                <strong>{t`Loading service history...`}</strong>
               </div>
             ) : filtered.length ? (
               <div className="timeline">
@@ -547,7 +598,9 @@ export function TrackerDashboard({
                   <div className="insight-divider" />
                   <div className="insight-data">
                     <span>{t`Visits tracked`}</span>
-                    <strong>{String(selected.records.length).padStart(2, '0')}</strong>
+                    <strong>
+                      {historyLoading ? '—' : String(records.length).padStart(2, '0')}
+                    </strong>
                   </div>
                   <div className="insight-data">
                     <span>{t`Last service`}</span>

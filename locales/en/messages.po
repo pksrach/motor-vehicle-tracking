@@ -4,35 +4,35 @@ msgstr ""
 "Language: en\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: components/tracker-dashboard.tsx:394
+#: components/tracker-dashboard.tsx:438
 msgid "Your garage is ready"
 msgstr "Your garage is ready"
 
-#: components/tracker-dashboard.tsx:529
+#: components/tracker-dashboard.tsx:580
 msgid "Add the first service record"
 msgstr "Add the first service record"
 
-#: components/tracker-dashboard.tsx:287
+#: components/tracker-dashboard.tsx:320
 msgid "Good {greeting}, {name}."
 msgstr "Good {greeting}, {name}."
 
-#: components/tracker-dashboard.tsx:159
+#: components/tracker-dashboard.tsx:191
 msgid "{count}d ago"
 msgstr "{count}d ago"
 
-#: components/tracker-dashboard.tsx:109
+#: components/tracker-dashboard.tsx:111
 msgid "Error: Browser storage is unavailable, so the selected vehicle could not be restored."
 msgstr "Error: Browser storage is unavailable, so the selected vehicle could not be restored."
 
-#: components/tracker-dashboard.tsx:274
+#: components/tracker-dashboard.tsx:307
 msgid "All systems ready"
 msgstr "All systems ready"
 
-#: components/tracker-dashboard.tsx:740
+#: components/tracker-dashboard.tsx:793
 msgid "Notes"
 msgstr "Notes"
 
-#: components/tracker-dashboard.tsx:285
+#: components/tracker-dashboard.tsx:318
 msgid "YOUR GARAGE, IN GOOD ORDER"
 msgstr "YOUR GARAGE, IN GOOD ORDER"
 
@@ -44,7 +44,7 @@ msgstr "Create account"
 msgid "Remembered."
 msgstr "Remembered."
 
-#: components/tracker-dashboard.tsx:641
+#: components/tracker-dashboard.tsx:694
 msgid "Service visit updated."
 msgstr "Service visit updated."
 
@@ -52,11 +52,11 @@ msgstr "Service visit updated."
 msgid "Invalid service date"
 msgstr "Invalid service date"
 
-#: components/tracker-dashboard.tsx:546
+#: components/tracker-dashboard.tsx:597
 msgid "PLATE NOT ADDED"
 msgstr "PLATE NOT ADDED"
 
-#: components/tracker-dashboard.tsx:877
+#: components/tracker-dashboard.tsx:930
 msgid "KM"
 msgstr "KM"
 
@@ -64,15 +64,15 @@ msgstr "KM"
 msgid "Create an account"
 msgstr "Create an account"
 
-#: components/tracker-dashboard.tsx:341
+#: components/tracker-dashboard.tsx:377
 msgid "Garage"
 msgstr "Garage"
 
-#: components/tracker-dashboard.tsx:403
+#: components/tracker-dashboard.tsx:447
 msgid "Add your first vehicle"
 msgstr "Add your first vehicle"
 
-#: components/tracker-dashboard.tsx:200
+#: components/tracker-dashboard.tsx:233
 msgid "Service visit deleted."
 msgstr "Service visit deleted."
 
@@ -81,7 +81,7 @@ msgstr "Service visit deleted."
 msgid "Sign in"
 msgstr "Sign in"
 
-#: components/tracker-dashboard.tsx:247
+#: components/tracker-dashboard.tsx:280
 msgid "Your records are private"
 msgstr "Your records are private"
 
@@ -90,16 +90,16 @@ msgstr "Your records are private"
 msgid "Your vehicle records stay private to your account."
 msgstr "Your vehicle records stay private to your account."
 
-#: components/tracker-dashboard.tsx:225
-#: components/tracker-dashboard.tsx:270
+#: components/tracker-dashboard.tsx:258
+#: components/tracker-dashboard.tsx:303
 msgid "Overview"
 msgstr "Overview"
 
-#: components/tracker-dashboard.tsx:123
+#: components/tracker-dashboard.tsx:125
 msgid "Driver"
 msgstr "Driver"
 
-#: components/tracker-dashboard.tsx:469
+#: components/tracker-dashboard.tsx:520
 msgid "Edit service record"
 msgstr "Edit service record"
 
@@ -107,7 +107,7 @@ msgstr "Edit service record"
 msgid "GET STARTED"
 msgstr "GET STARTED"
 
-#: components/tracker-dashboard.tsx:994
+#: components/tracker-dashboard.tsx:1047
 msgid "Remove line item"
 msgstr "Remove line item"
 
@@ -115,31 +115,31 @@ msgstr "Remove line item"
 msgid "Alex Morgan"
 msgstr "Alex Morgan"
 
-#: components/tracker-dashboard.tsx:288
+#: components/tracker-dashboard.tsx:321
 msgid "Stay ahead of every mile. Your vehicle care, all in one place."
 msgstr "Stay ahead of every mile. Your vehicle care, all in one place."
 
-#: components/tracker-dashboard.tsx:972
+#: components/tracker-dashboard.tsx:1025
 msgid "Actions"
 msgstr "Actions"
 
-#: components/tracker-dashboard.tsx:330
+#: components/tracker-dashboard.tsx:366
 msgid "No visits yet"
 msgstr "No visits yet"
 
-#: components/tracker-dashboard.tsx:592
+#: components/tracker-dashboard.tsx:645
 msgid "Small checks."
 msgstr "Small checks."
 
-#: components/tracker-dashboard.tsx:654
+#: components/tracker-dashboard.tsx:707
 msgid "Delete visit"
 msgstr "Delete visit"
 
-#: components/tracker-dashboard.tsx:328
+#: components/tracker-dashboard.tsx:364
 msgid "LAST SERVICE"
 msgstr "LAST SERVICE"
 
-#: components/tracker-dashboard.tsx:867
+#: components/tracker-dashboard.tsx:920
 msgid "Service date"
 msgstr "Service date"
 
@@ -152,11 +152,11 @@ msgstr "Already have an account?"
 msgid "Password"
 msgstr "Password"
 
-#: components/tracker-dashboard.tsx:304
+#: components/tracker-dashboard.tsx:340
 msgid "Maintenance summary"
 msgstr "Maintenance summary"
 
-#: components/tracker-dashboard.tsx:590
+#: components/tracker-dashboard.tsx:643
 msgid "A LITTLE HEAD START"
 msgstr "A LITTLE HEAD START"
 
@@ -164,7 +164,7 @@ msgstr "A LITTLE HEAD START"
 msgid "Motor & Vehicle Tracking"
 msgstr "Motor & Vehicle Tracking"
 
-#: components/tracker-dashboard.tsx:287
+#: components/tracker-dashboard.tsx:320
 msgid "Welcome, {name}."
 msgstr "Welcome, {name}."
 
@@ -174,19 +174,23 @@ msgstr "Your password"
 
 #: components/print-report.tsx:78
 #: components/print-report.tsx:79
-#: components/tracker-dashboard.tsx:917
-#: components/tracker-dashboard.tsx:932
-#: components/tracker-dashboard.tsx:967
-#: components/tracker-dashboard.tsx:968
+#: components/tracker-dashboard.tsx:970
+#: components/tracker-dashboard.tsx:985
+#: components/tracker-dashboard.tsx:1020
+#: components/tracker-dashboard.tsx:1021
 msgid "Price"
 msgstr "Price"
+
+#: components/tracker-dashboard.tsx:337
+msgid "Could not load service history. Please try again."
+msgstr "Could not load service history. Please try again."
 
 #: app/login/page.tsx:86
 #: app/register/page.tsx:110
 msgid "Email address"
 msgstr "Email address"
 
-#: components/tracker-dashboard.tsx:583
+#: components/tracker-dashboard.tsx:636
 msgid "Choose a vehicle to see its details."
 msgstr "Choose a vehicle to see its details."
 
@@ -194,12 +198,12 @@ msgstr "Choose a vehicle to see its details."
 msgid "Every mile."
 msgstr "Every mile."
 
-#: components/tracker-dashboard.tsx:648
+#: components/tracker-dashboard.tsx:701
 msgid "Delete service visit?"
 msgstr "Delete service visit?"
 
-#: components/tracker-dashboard.tsx:579
-#: components/tracker-dashboard.tsx:654
+#: components/tracker-dashboard.tsx:632
+#: components/tracker-dashboard.tsx:707
 msgid "Remove vehicle"
 msgstr "Remove vehicle"
 
@@ -207,7 +211,7 @@ msgstr "Remove vehicle"
 msgid "No maintenance entries recorded yet."
 msgstr "No maintenance entries recorded yet."
 
-#: components/tracker-dashboard.tsx:514
+#: components/tracker-dashboard.tsx:565
 msgid "↑  CHRONOLOGICAL PROGRESSION"
 msgstr "↑  CHRONOLOGICAL PROGRESSION"
 
@@ -215,7 +219,7 @@ msgstr "↑  CHRONOLOGICAL PROGRESSION"
 msgid "At least 8 characters"
 msgstr "At least 8 characters"
 
-#: components/tracker-dashboard.tsx:744
+#: components/tracker-dashboard.tsx:797
 msgid "Anything useful to remember"
 msgstr "Anything useful to remember"
 
@@ -223,15 +227,15 @@ msgstr "Anything useful to remember"
 msgid "Creating account…"
 msgstr "Creating account…"
 
-#: components/tracker-dashboard.tsx:307
+#: components/tracker-dashboard.tsx:343
 msgid "SERVICE VISITS"
 msgstr "SERVICE VISITS"
 
-#: components/tracker-dashboard.tsx:157
+#: components/tracker-dashboard.tsx:189
 msgid "{count, plural, one {# recorded visit} other {# recorded visits}}"
 msgstr "{count, plural, one {# recorded visit} other {# recorded visits}}"
 
-#: components/tracker-dashboard.tsx:844
+#: components/tracker-dashboard.tsx:897
 msgid "Edit service visit"
 msgstr "Edit service visit"
 
@@ -239,7 +243,7 @@ msgstr "Edit service visit"
 msgid "Create your account"
 msgstr "Create your account"
 
-#: components/tracker-dashboard.tsx:1060
+#: components/tracker-dashboard.tsx:1113
 msgid "Close dialog"
 msgstr "Close dialog"
 
@@ -255,12 +259,12 @@ msgstr "Generated by Motive · Private vehicle care"
 msgid "Unauthorized"
 msgstr "Unauthorized"
 
-#: components/tracker-dashboard.tsx:158
+#: components/tracker-dashboard.tsx:190
 msgid "{count, plural, one {visit} other {visits}}"
 msgstr "{count, plural, one {visit} other {visits}}"
 
-#: components/tracker-dashboard.tsx:751
-#: components/tracker-dashboard.tsx:1016
+#: components/tracker-dashboard.tsx:804
+#: components/tracker-dashboard.tsx:1069
 #: components/ui/confirm-dialog.tsx:51
 msgid "Cancel"
 msgstr "Cancel"
@@ -269,12 +273,12 @@ msgstr "Cancel"
 msgid "Back to overview"
 msgstr "Back to overview"
 
-#: components/tracker-dashboard.tsx:731
-#: components/tracker-dashboard.tsx:740
+#: components/tracker-dashboard.tsx:784
+#: components/tracker-dashboard.tsx:793
 msgid "OPTIONAL"
 msgstr "OPTIONAL"
 
-#: components/tracker-dashboard.tsx:524
+#: components/tracker-dashboard.tsx:575
 msgid "Try another part name or clear your search."
 msgstr "Try another part name or clear your search."
 
@@ -282,11 +286,11 @@ msgstr "Try another part name or clear your search."
 msgid "Sign in to your garage"
 msgstr "Sign in to your garage"
 
-#: components/tracker-dashboard.tsx:441
+#: components/tracker-dashboard.tsx:485
 msgid "Add a vehicle, then log each service visit and its parts."
 msgstr "Add a vehicle, then log each service visit and its parts."
 
-#: components/tracker-dashboard.tsx:352
+#: components/tracker-dashboard.tsx:388
 msgid "Add Motor Vehicle"
 msgstr "Add Motor Vehicle"
 
@@ -294,32 +298,32 @@ msgstr "Add Motor Vehicle"
 msgid "WELCOME BACK"
 msgstr "WELCOME BACK"
 
-#: components/tracker-dashboard.tsx:314
+#: components/tracker-dashboard.tsx:350
 msgid "TOTAL SPENT · USD"
 msgstr "TOTAL SPENT · USD"
 
-#: components/tracker-dashboard.tsx:845
+#: components/tracker-dashboard.tsx:898
 msgid "Record the visit and the work completed."
 msgstr "Record the visit and the work completed."
 
-#: components/tracker-dashboard.tsx:567
-#: components/tracker-dashboard.tsx:704
+#: components/tracker-dashboard.tsx:620
+#: components/tracker-dashboard.tsx:757
 msgid "Edit vehicle details"
 msgstr "Edit vehicle details"
 
-#: components/tracker-dashboard.tsx:418
+#: components/tracker-dashboard.tsx:462
 msgid "Find a part or service"
 msgstr "Find a part or service"
 
-#: components/tracker-dashboard.tsx:323
+#: components/tracker-dashboard.tsx:359
 msgid "Cambodian riel"
 msgstr "Cambodian riel"
 
-#: components/tracker-dashboard.tsx:256
+#: components/tracker-dashboard.tsx:289
 msgid "Personal workspace"
 msgstr "Personal workspace"
 
-#: components/tracker-dashboard.tsx:188
+#: components/tracker-dashboard.tsx:221
 msgid "Something went wrong. Please try again."
 msgstr "Something went wrong. Please try again."
 
@@ -327,15 +331,15 @@ msgstr "Something went wrong. Please try again."
 msgid "Pick up right where you left off."
 msgstr "Pick up right where you left off."
 
-#: components/tracker-dashboard.tsx:309
+#: components/tracker-dashboard.tsx:345
 msgid "Start your service history"
 msgstr "Start your service history"
 
-#: components/tracker-dashboard.tsx:1009
+#: components/tracker-dashboard.tsx:1062
 msgid "VISIT SUBTOTAL"
 msgstr "VISIT SUBTOTAL"
 
-#: components/tracker-dashboard.tsx:153
+#: components/tracker-dashboard.tsx:185
 msgid "evening"
 msgstr "evening"
 
@@ -347,11 +351,11 @@ msgstr "EXPORTED"
 msgid "YOUR GARAGE STARTS HERE"
 msgstr "YOUR GARAGE STARTS HERE"
 
-#: components/tracker-dashboard.tsx:429
+#: components/tracker-dashboard.tsx:473
 msgid "Report"
 msgstr "Report"
 
-#: components/tracker-dashboard.tsx:734
+#: components/tracker-dashboard.tsx:787
 msgid "e.g. 2AB-1234"
 msgstr "e.g. 2AB-1234"
 
@@ -359,19 +363,19 @@ msgstr "e.g. 2AB-1234"
 msgid "Maintenance remark / part"
 msgstr "Maintenance remark / part"
 
-#: components/tracker-dashboard.tsx:725
+#: components/tracker-dashboard.tsx:778
 msgid "e.g. Honda Dream 2017"
 msgstr "e.g. Honda Dream 2017"
 
-#: components/tracker-dashboard.tsx:150
+#: components/tracker-dashboard.tsx:182
 msgid "morning"
 msgstr "morning"
 
-#: components/tracker-dashboard.tsx:541
+#: components/tracker-dashboard.tsx:592
 msgid "CURRENT VEHICLE"
 msgstr "CURRENT VEHICLE"
 
-#: components/tracker-dashboard.tsx:877
+#: components/tracker-dashboard.tsx:930
 msgid "Odometer"
 msgstr "Odometer"
 
@@ -383,7 +387,7 @@ msgstr "PLATE NUMBER"
 msgid "Maintenance report"
 msgstr "Maintenance report"
 
-#: components/tracker-dashboard.tsx:521
+#: components/tracker-dashboard.tsx:572
 msgid "No service visits yet"
 msgstr "No service visits yet"
 
@@ -391,7 +395,7 @@ msgstr "No service visits yet"
 msgid "Keep every vehicle service, part replacement, and maintenance cost in one place."
 msgstr "Keep every vehicle service, part replacement, and maintenance cost in one place."
 
-#: components/tracker-dashboard.tsx:731
+#: components/tracker-dashboard.tsx:784
 msgid "Plate number"
 msgstr "Plate number"
 
@@ -399,15 +403,15 @@ msgstr "Plate number"
 msgid "Loading your vehicle dashboard"
 msgstr "Loading your vehicle dashboard"
 
-#: components/tracker-dashboard.tsx:553
+#: components/tracker-dashboard.tsx:606
 msgid "Last service"
 msgstr "Last service"
 
-#: components/tracker-dashboard.tsx:417
+#: components/tracker-dashboard.tsx:461
 msgid "Filter service items"
 msgstr "Filter service items"
 
-#: components/tracker-dashboard.tsx:719
+#: components/tracker-dashboard.tsx:772
 msgid "Vehicle name"
 msgstr "Vehicle name"
 
@@ -423,27 +427,27 @@ msgstr "Your account is ready. Please sign in to continue."
 msgid "GRAND TOTAL"
 msgstr "GRAND TOTAL"
 
-#: components/tracker-dashboard.tsx:651
+#: components/tracker-dashboard.tsx:704
 msgid "Delete this service visit and its line items?"
 msgstr "Delete this service visit and its line items?"
 
-#: components/tracker-dashboard.tsx:602
+#: components/tracker-dashboard.tsx:655
 msgid "Private by design. Your records belong to your account."
 msgstr "Private by design. Your records belong to your account."
 
-#: components/tracker-dashboard.tsx:557
+#: components/tracker-dashboard.tsx:610
 msgid "Lifetime spend"
 msgstr "Lifetime spend"
 
-#: components/tracker-dashboard.tsx:339
+#: components/tracker-dashboard.tsx:375
 msgid "YOUR VEHICLES"
 msgstr "YOUR VEHICLES"
 
-#: components/tracker-dashboard.tsx:549
+#: components/tracker-dashboard.tsx:600
 msgid "Visits tracked"
 msgstr "Visits tracked"
 
-#: components/tracker-dashboard.tsx:882
+#: components/tracker-dashboard.tsx:935
 msgid "Optional"
 msgstr "Optional"
 
@@ -451,11 +455,11 @@ msgstr "Optional"
 msgid "Record not found or access denied"
 msgstr "Record not found or access denied"
 
-#: components/tracker-dashboard.tsx:464
+#: components/tracker-dashboard.tsx:515
 msgid "LATEST"
 msgstr "LATEST"
 
-#: components/tracker-dashboard.tsx:463
+#: components/tracker-dashboard.tsx:514
 msgid "Service visit"
 msgstr "Service visit"
 
@@ -463,11 +467,11 @@ msgstr "Service visit"
 msgid "Unable to sign in right now. Please try again."
 msgstr "Unable to sign in right now. Please try again."
 
-#: components/tracker-dashboard.tsx:979
+#: components/tracker-dashboard.tsx:1032
 msgid "No work or parts added yet"
 msgstr "No work or parts added yet"
 
-#: components/tracker-dashboard.tsx:597
+#: components/tracker-dashboard.tsx:650
 msgid "Keep service dates and mileage up to date to spot patterns in your vehicle care."
 msgstr "Keep service dates and mileage up to date to spot patterns in your vehicle care."
 
@@ -475,7 +479,7 @@ msgstr "Keep service dates and mileage up to date to spot patterns in your vehic
 msgid "MADE FOR EVERY MILE"
 msgstr "MADE FOR EVERY MILE"
 
-#: components/tracker-dashboard.tsx:218
+#: components/tracker-dashboard.tsx:251
 msgid "WORKSPACE"
 msgstr "WORKSPACE"
 
@@ -493,7 +497,7 @@ msgstr "Signing in…"
 msgid "VEHICLE CARE"
 msgstr "VEHICLE CARE"
 
-#: components/tracker-dashboard.tsx:169
+#: components/tracker-dashboard.tsx:202
 msgid "Error: Browser storage is unavailable, so this selection will not be remembered after refresh."
 msgstr "Error: Browser storage is unavailable, so this selection will not be remembered after refresh."
 
@@ -501,11 +505,11 @@ msgstr "Error: Browser storage is unavailable, so this selection will not be rem
 msgid "Date"
 msgstr "Date"
 
-#: components/tracker-dashboard.tsx:152
+#: components/tracker-dashboard.tsx:184
 msgid "afternoon"
 msgstr "afternoon"
 
-#: components/tracker-dashboard.tsx:896
+#: components/tracker-dashboard.tsx:949
 msgid "e.g. Change engine oil"
 msgstr "e.g. Change engine oil"
 
@@ -518,7 +522,7 @@ msgstr "Keep the road"
 msgid "you@example.com"
 msgstr "you@example.com"
 
-#: components/tracker-dashboard.tsx:958
+#: components/tracker-dashboard.tsx:1011
 msgid "Add item"
 msgstr "Add item"
 
@@ -526,11 +530,11 @@ msgstr "Add item"
 msgid "Build a service history that helps you stay one step ahead."
 msgstr "Build a service history that helps you stay one step ahead."
 
-#: components/tracker-dashboard.tsx:648
+#: components/tracker-dashboard.tsx:701
 msgid "Remove vehicle?"
 msgstr "Remove vehicle?"
 
-#: components/tracker-dashboard.tsx:708
+#: components/tracker-dashboard.tsx:761
 msgid "Give your vehicle a name you’ll recognize."
 msgstr "Give your vehicle a name you’ll recognize."
 
@@ -538,7 +542,7 @@ msgstr "Give your vehicle a name you’ll recognize."
 msgid "Could not create your account."
 msgstr "Could not create your account."
 
-#: components/tracker-dashboard.tsx:249
+#: components/tracker-dashboard.tsx:282
 msgid "and secured to your account."
 msgstr "and secured to your account."
 
@@ -546,19 +550,19 @@ msgstr "and secured to your account."
 msgid "An account with this email already exists."
 msgstr "An account with this email already exists."
 
-#: components/tracker-dashboard.tsx:321
+#: components/tracker-dashboard.tsx:357
 msgid "TOTAL SPENT · KHR"
 msgstr "TOTAL SPENT · KHR"
 
-#: components/tracker-dashboard.tsx:707
+#: components/tracker-dashboard.tsx:760
 msgid "Update this vehicle’s name, plate number, or notes."
 msgstr "Update this vehicle’s name, plate number, or notes."
 
-#: components/tracker-dashboard.tsx:265
+#: components/tracker-dashboard.tsx:298
 msgid "Workspace"
 msgstr "Workspace"
 
-#: components/tracker-dashboard.tsx:440
+#: components/tracker-dashboard.tsx:484
 msgid "Your maintenance timeline starts here"
 msgstr "Your maintenance timeline starts here"
 
@@ -570,7 +574,7 @@ msgstr "VEHICLE"
 msgid "Your name"
 msgstr "Your name"
 
-#: components/tracker-dashboard.tsx:889
+#: components/tracker-dashboard.tsx:942
 msgid "Work & parts"
 msgstr "Work & parts"
 
@@ -583,7 +587,7 @@ msgstr "Your vehicles and records, kept together."
 msgid "PRIVATE VEHICLE CARE · BUILT AROUND YOU"
 msgstr "PRIVATE VEHICLE CARE · BUILT AROUND YOU"
 
-#: components/tracker-dashboard.tsx:316
+#: components/tracker-dashboard.tsx:352
 msgid "Across all service visits"
 msgstr "Across all service visits"
 
@@ -595,11 +599,11 @@ msgstr "That email and password combination wasn’t recognized."
 msgid "in view."
 msgstr "in view."
 
-#: components/tracker-dashboard.tsx:410
+#: components/tracker-dashboard.tsx:454
 msgid "THE COMPLETE PICTURE"
 msgstr "THE COMPLETE PICTURE"
 
-#: components/tracker-dashboard.tsx:277
+#: components/tracker-dashboard.tsx:310
 msgid "Settings"
 msgstr "Settings"
 
@@ -607,8 +611,8 @@ msgstr "Settings"
 msgid "A calmer way to care for every vehicle you own."
 msgstr "A calmer way to care for every vehicle you own."
 
-#: components/tracker-dashboard.tsx:233
-#: components/tracker-dashboard.tsx:267
+#: components/tracker-dashboard.tsx:266
+#: components/tracker-dashboard.tsx:300
 msgid "My garage"
 msgstr "My garage"
 
@@ -616,11 +620,11 @@ msgstr "My garage"
 msgid "Print / Save PDF"
 msgstr "Print / Save PDF"
 
-#: components/tracker-dashboard.tsx:201
+#: components/tracker-dashboard.tsx:234
 msgid "Vehicle removed."
 msgstr "Vehicle removed."
 
-#: components/tracker-dashboard.tsx:395
+#: components/tracker-dashboard.tsx:439
 msgid "Add your first vehicle to start tracking its care."
 msgstr "Add your first vehicle to start tracking its care."
 
@@ -629,26 +633,26 @@ msgid "OWNER"
 msgstr "OWNER"
 
 #: components/print-report.tsx:77
-#: components/tracker-dashboard.tsx:902
-#: components/tracker-dashboard.tsx:966
+#: components/tracker-dashboard.tsx:955
+#: components/tracker-dashboard.tsx:1019
 msgid "Quantity"
 msgstr "Quantity"
 
-#: components/tracker-dashboard.tsx:525
+#: components/tracker-dashboard.tsx:576
 msgid "Your maintenance entries will appear here."
 msgstr "Your maintenance entries will appear here."
 
-#: components/tracker-dashboard.tsx:521
+#: components/tracker-dashboard.tsx:572
 msgid "No matching service items"
 msgstr "No matching service items"
 
-#: components/tracker-dashboard.tsx:375
+#: components/tracker-dashboard.tsx:411
 msgid "No plate number"
 msgstr "No plate number"
 
-#: components/tracker-dashboard.tsx:241
-#: components/tracker-dashboard.tsx:269
-#: components/tracker-dashboard.tsx:411
+#: components/tracker-dashboard.tsx:274
+#: components/tracker-dashboard.tsx:302
+#: components/tracker-dashboard.tsx:455
 msgid "Service history"
 msgstr "Service history"
 
@@ -657,12 +661,12 @@ msgstr "Service history"
 msgid "Language"
 msgstr "Language"
 
-#: components/tracker-dashboard.tsx:295
-#: components/tracker-dashboard.tsx:844
+#: components/tracker-dashboard.tsx:328
+#: components/tracker-dashboard.tsx:897
 msgid "Log a service"
 msgstr "Log a service"
 
-#: components/tracker-dashboard.tsx:622
+#: components/tracker-dashboard.tsx:675
 msgid "Vehicle added."
 msgstr "Vehicle added."
 
@@ -670,48 +674,48 @@ msgstr "Vehicle added."
 msgid "New to Motive?"
 msgstr "New to Motive?"
 
-#: components/tracker-dashboard.tsx:893
-#: components/tracker-dashboard.tsx:965
+#: components/tracker-dashboard.tsx:946
+#: components/tracker-dashboard.tsx:1018
 msgid "Remark"
 msgstr "Remark"
 
-#: components/tracker-dashboard.tsx:622
+#: components/tracker-dashboard.tsx:675
 msgid "Vehicle details updated."
 msgstr "Vehicle details updated."
 
 #: components/print-report.tsx:80
 #: components/print-report.tsx:81
-#: components/tracker-dashboard.tsx:969
-#: components/tracker-dashboard.tsx:970
+#: components/tracker-dashboard.tsx:1022
+#: components/tracker-dashboard.tsx:1023
 msgid "Subtotal"
 msgstr "Subtotal"
 
-#: components/tracker-dashboard.tsx:594
+#: components/tracker-dashboard.tsx:647
 msgid "Longer journeys."
 msgstr "Longer journeys."
 
-#: components/tracker-dashboard.tsx:704
+#: components/tracker-dashboard.tsx:757
 msgid "Add a vehicle"
 msgstr "Add a vehicle"
 
-#: components/tracker-dashboard.tsx:754
+#: components/tracker-dashboard.tsx:807
 msgid "Save vehicle"
 msgstr "Save vehicle"
 
-#: components/tracker-dashboard.tsx:754
-#: components/tracker-dashboard.tsx:1019
+#: components/tracker-dashboard.tsx:807
+#: components/tracker-dashboard.tsx:1072
 msgid "Save changes"
 msgstr "Save changes"
 
-#: components/tracker-dashboard.tsx:641
+#: components/tracker-dashboard.tsx:694
 msgid "Service visit saved."
 msgstr "Service visit saved."
 
-#: components/tracker-dashboard.tsx:506
+#: components/tracker-dashboard.tsx:557
 msgid "VISIT TOTAL"
 msgstr "VISIT TOTAL"
 
-#: components/tracker-dashboard.tsx:478
+#: components/tracker-dashboard.tsx:529
 msgid "Delete service record"
 msgstr "Delete service record"
 
@@ -719,10 +723,14 @@ msgstr "Delete service record"
 msgid "ahead"
 msgstr "ahead"
 
-#: components/tracker-dashboard.tsx:652
+#: components/tracker-dashboard.tsx:492
+msgid "Loading service history..."
+msgstr "Loading service history..."
+
+#: components/tracker-dashboard.tsx:705
 msgid "Remove {vehicleName} and all its service history?"
 msgstr "Remove {vehicleName} and all its service history?"
 
-#: components/tracker-dashboard.tsx:1019
+#: components/tracker-dashboard.tsx:1072
 msgid "Save service"
 msgstr "Save service"

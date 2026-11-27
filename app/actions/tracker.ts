@@ -1,7 +1,7 @@
 'use server'
 
 import { randomUUID } from 'node:crypto'
-import { and, eq } from 'drizzle-orm'
+import { and, desc, eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { auth } from '@/auth'
@@ -73,6 +73,36 @@ export async function deleteVehicle(id: string) {
   const userId = await currentUserId()
   await db.delete(vehicles).where(and(eq(vehicles.id, id), eq(vehicles.userId, userId)))
   revalidatePath('/')
+}
+
+export async function getVehicleServiceHistory(vehicleId: string) {
+  const userId = await currentUserId()
+  const records = await db
+    .select()
+    .from(maintenanceRecords)
+    .where(and(eq(maintenanceRecords.vehicleId, vehicleId), eq(maintenanceRecords.userId, userId)))
+    .orderBy(desc(maintenanceRecords.serviceDate))
+  if (!records.length) return []
+
+  const items = await db
+    .select({
+      id: maintenanceItems.id,
+      maintenanceRecordId: maintenanceItems.maintenanceRecordId,
+      remark: maintenanceItems.remark,
+      quantity: maintenanceItems.quantity,
+      priceUsd: maintenanceItems.priceUsd,
+      priceKhr: maintenanceItems.priceKhr,
+    })
+    .from(maintenanceItems)
+    .innerJoin(maintenanceRecords, eq(maintenanceItems.maintenanceRecordId, maintenanceRecords.id))
+    .where(and(eq(maintenanceRecords.vehicleId, vehicleId), eq(maintenanceRecords.userId, userId)))
+
+  return records.map((record) => ({
+    id: record.id,
+    serviceDate: record.serviceDate.toISOString(),
+    odometerKm: record.odometerKm,
+    items: items.filter((item) => item.maintenanceRecordId === record.id),
+  }))
 }
 
 export async function saveMaintenance(input: unknown, recordId?: string) {
