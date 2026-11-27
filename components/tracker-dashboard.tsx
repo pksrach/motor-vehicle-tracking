@@ -844,6 +844,16 @@ function ServiceDialog({
       priceKhr: item.priceKhr,
     })) ?? [],
   )
+  const [editingItem, setEditingItem] = useState<{
+    index: number
+    remark: string
+    quantity: string
+    priceUsd: string
+    priceKhr: string
+  } | null>(null)
+  const [itemConfirmation, setItemConfirmation] = useState<
+    { type: 'update' } | { type: 'remove'; index: number } | null
+  >(null)
   const [draftRemark, setDraftRemark] = useState('')
   const [draftQuantity, setDraftQuantity] = useState('1')
   const [draftPriceUsd, setDraftPriceUsd] = useState('0')
@@ -873,8 +883,8 @@ function ServiceDialog({
     if (
       !draftRemark.trim() ||
       !isValidQuantity(draftQuantity) ||
-      !isValidAmount(draftPriceUsd, 99999999.999) ||
-      !isValidAmount(draftPriceKhr, 99999999999999.999)
+      !isValidAmount(draftPriceUsd, 99999999.999999) ||
+      !isValidAmount(draftPriceKhr, 99999999999999.999999)
     ) {
       return
     }
@@ -892,188 +902,358 @@ function ServiceDialog({
     setDraftPriceUsd('0')
     setDraftPriceKhr('0')
   }
+  function saveEditedItem() {
+    if (
+      !editingItem ||
+      !editingItem.remark.trim() ||
+      !isValidQuantity(editingItem.quantity) ||
+      !isValidAmount(editingItem.priceUsd, 99999999.999999) ||
+      !isValidAmount(editingItem.priceKhr, 99999999999999.999999)
+    ) {
+      return
+    }
+    setItemConfirmation({ type: 'update' })
+  }
+  function confirmItemAction() {
+    if (!itemConfirmation) return
+    if (itemConfirmation.type === 'update' && editingItem) {
+      setItems((current) =>
+        current.map((item, index) =>
+          index === editingItem.index
+            ? {
+                remark: editingItem.remark.trim(),
+                quantity: Number(editingItem.quantity),
+                priceUsd: String(Number(editingItem.priceUsd || 0)),
+                priceKhr: String(Number(editingItem.priceKhr || 0)),
+              }
+            : item,
+        ),
+      )
+      setEditingItem(null)
+    } else if (itemConfirmation.type === 'remove') {
+      setItems((current) => current.filter((_, index) => index !== itemConfirmation.index))
+    }
+    setItemConfirmation(null)
+  }
   return (
-    <Modal
-      title={initial ? t`Edit service visit` : t`Log a service`}
-      subtitle={t`Record the visit and the work completed.`}
-      onClose={onClose}
-      wide
-    >
-      <form
-        onSubmit={(event) => {
-          event.preventDefault()
-          onSave({
-            vehicleId: vehicle.id,
-            serviceDate,
-            odometerKm: odometerKm ? Number(odometerKm) : undefined,
-            items: items.map((item) => ({
-              remark: item.remark,
-              quantity: item.quantity,
-              priceUsd: Number(item.priceUsd || 0),
-              priceKhr: Number(item.priceKhr || 0),
-            })),
-          })
-        }}
+    <>
+      <Modal
+        title={initial ? t`Edit service visit` : t`Log a service`}
+        subtitle={t`Record the visit and the work completed.`}
+        onClose={onClose}
+        wide
       >
-        <div className="form-row">
-          <label className="form-label">
-            {t`Service date`}
-            <input
-              type="date"
-              required
-              value={serviceDate}
-              onChange={(event) => setDate(event.target.value)}
-            />
-          </label>
-          <label className="form-label">
-            <span className="form-label-heading">
-              {t`Odometer`} <span>{t`KM`}</span>
-            </span>
-            <input
-              type="number"
-              min="0"
-              placeholder={t`Optional`}
-              value={odometerKm}
-              onChange={(event) => setOdometer(event.target.value)}
-            />
-          </label>
-        </div>
-        <div className="line-items-title">
-          <strong>{t`Work & parts`}</strong>
-        </div>
-        <div className="item-entry-form">
-          <label className="form-label item-entry-remark">
-            {t`Remark`}
-            <input
-              maxLength={160}
-              placeholder={t`e.g. Change engine oil`}
-              value={draftRemark}
-              onChange={(event) => setDraftRemark(event.target.value)}
-            />
-          </label>
-          <label className="form-label">
-            {t`Quantity`}
-            <input
-              type="text"
-              inputMode="numeric"
-              maxLength={9}
-              value={draftQuantity}
-              onBlur={(event) => draftInputSelection.current.delete(event.currentTarget)}
-              onClick={(event) => toggleDraftInputSelection(event.currentTarget)}
-              onChange={(event) => {
-                const value = limitIntegerInput(event.target.value)
-                if (value !== null) setDraftQuantity(value)
-              }}
-            />
-          </label>
-          <label className="form-label">
-            {t`Price`} USD ($)
-            <input
-              type="text"
-              inputMode="decimal"
-              maxLength={12}
-              value={draftPriceUsd}
-              onBlur={(event) => draftInputSelection.current.delete(event.currentTarget)}
-              onClick={(event) => toggleDraftInputSelection(event.currentTarget)}
-              onChange={(event) => {
-                const value = limitDecimalInput(event.target.value)
-                if (value !== null) setDraftPriceUsd(value)
-              }}
-            />
-          </label>
-          <label className="form-label">
-            {t`Price`} KHR (៛)
-            <input
-              type="text"
-              inputMode="decimal"
-              maxLength={18}
-              value={draftPriceKhr}
-              onBlur={(event) => draftInputSelection.current.delete(event.currentTarget)}
-              onClick={(event) => toggleDraftInputSelection(event.currentTarget)}
-              onChange={(event) => {
-                const value = limitDecimalInput(event.target.value)
-                if (value !== null) setDraftPriceKhr(value)
-              }}
-            />
-          </label>
-          <button
-            type="button"
-            className="button quiet item-add-button"
-            onClick={addItem}
-            disabled={
-              !draftRemark.trim() ||
-              !isValidQuantity(draftQuantity) ||
-              !isValidAmount(draftPriceUsd, 99999999.999) ||
-              !isValidAmount(draftPriceKhr, 99999999999999.999) ||
-              items.length >= 30
-            }
-          >
-            <CirclePlus size={14} /> {t`Add item`}
-          </button>
-        </div>
-        <div className="line-items-table-wrap">
-          <table className="line-items-table">
-            <thead>
-              <tr>
-                <th scope="col">{t`Remark`}</th>
-                <th scope="col">{t`Quantity`}</th>
-                <th scope="col">{t`Price`} USD ($)</th>
-                <th scope="col">{t`Price`} KHR (៛)</th>
-                <th scope="col">{t`Subtotal`} USD ($)</th>
-                <th scope="col">{t`Subtotal`} KHR (៛)</th>
-                <th scope="col">
-                  <span className="sr-only">{t`Actions`}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.length === 0 ? (
+        <form
+          onSubmit={(event) => {
+            event.preventDefault()
+            if (editingItem !== null) return
+            onSave({
+              vehicleId: vehicle.id,
+              serviceDate,
+              odometerKm: odometerKm ? Number(odometerKm) : undefined,
+              items: items.map((item) => ({
+                remark: item.remark,
+                quantity: item.quantity,
+                priceUsd: Number(item.priceUsd || 0),
+                priceKhr: Number(item.priceKhr || 0),
+              })),
+            })
+          }}
+        >
+          <div className="form-row">
+            <label className="form-label">
+              {t`Service date`}
+              <input
+                type="date"
+                required
+                value={serviceDate}
+                onChange={(event) => setDate(event.target.value)}
+              />
+            </label>
+            <label className="form-label">
+              <span className="form-label-heading">
+                {t`Odometer`} <span>{t`KM`}</span>
+              </span>
+              <input
+                type="number"
+                min="0"
+                placeholder={t`Optional`}
+                value={odometerKm}
+                onChange={(event) => setOdometer(event.target.value)}
+              />
+            </label>
+          </div>
+          <div className="line-items-title">
+            <strong>{t`Work & parts`}</strong>
+          </div>
+          <div className="item-entry-form">
+            <label className="form-label item-entry-remark">
+              {t`Remark`}
+              <input
+                maxLength={160}
+                placeholder={t`e.g. Change engine oil`}
+                value={draftRemark}
+                onChange={(event) => setDraftRemark(event.target.value)}
+              />
+            </label>
+            <label className="form-label">
+              {t`Quantity`}
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={9}
+                value={draftQuantity}
+                onBlur={(event) => draftInputSelection.current.delete(event.currentTarget)}
+                onClick={(event) => toggleDraftInputSelection(event.currentTarget)}
+                onChange={(event) => {
+                  const value = limitIntegerInput(event.target.value)
+                  if (value !== null) setDraftQuantity(value)
+                }}
+              />
+            </label>
+            <label className="form-label">
+              {t`Price`} USD ($)
+              <input
+                type="text"
+                inputMode="decimal"
+                maxLength={15}
+                value={draftPriceUsd}
+                onBlur={(event) => draftInputSelection.current.delete(event.currentTarget)}
+                onClick={(event) => toggleDraftInputSelection(event.currentTarget)}
+                onChange={(event) => {
+                  const value = limitDecimalInput(event.target.value)
+                  if (value !== null) setDraftPriceUsd(value)
+                }}
+              />
+            </label>
+            <label className="form-label">
+              {t`Price`} KHR (៛)
+              <input
+                type="text"
+                inputMode="decimal"
+                maxLength={21}
+                value={draftPriceKhr}
+                onBlur={(event) => draftInputSelection.current.delete(event.currentTarget)}
+                onClick={(event) => toggleDraftInputSelection(event.currentTarget)}
+                onChange={(event) => {
+                  const value = limitDecimalInput(event.target.value)
+                  if (value !== null) setDraftPriceKhr(value)
+                }}
+              />
+            </label>
+            <button
+              type="button"
+              className="button quiet item-add-button"
+              onClick={addItem}
+              disabled={
+                !draftRemark.trim() ||
+                !isValidQuantity(draftQuantity) ||
+                !isValidAmount(draftPriceUsd, 99999999.999999) ||
+                !isValidAmount(draftPriceKhr, 99999999999999.999999) ||
+                items.length >= 30 ||
+                editingItem !== null
+              }
+            >
+              <CirclePlus size={14} /> {t`Add item`}
+            </button>
+          </div>
+          <div className="line-items-table-wrap">
+            <table className="line-items-table">
+              <thead>
                 <tr>
-                  <td className="empty-items" colSpan={7}>{t`No work or parts added yet`}</td>
+                  <th scope="col">{t`Remark`}</th>
+                  <th scope="col">{t`Quantity`}</th>
+                  <th scope="col">{t`Price`} USD ($)</th>
+                  <th scope="col">{t`Price`} KHR (៛)</th>
+                  <th scope="col">{t`Subtotal`} USD ($)</th>
+                  <th scope="col">{t`Subtotal`} KHR (៛)</th>
+                  <th scope="col">
+                    <span className="sr-only">{t`Actions`}</span>
+                  </th>
                 </tr>
-              ) : (
-                items.map((item, index) => (
-                  <tr key={`${item.remark}-${index}`}>
-                    <td>{item.remark}</td>
-                    <td>{item.quantity}</td>
-                    <td>{usd(Number(item.priceUsd), locale)}</td>
-                    <td>{khr(Number(item.priceKhr), locale)}</td>
-                    <td>{usd(item.quantity * Number(item.priceUsd), locale)}</td>
-                    <td>{khr(item.quantity * Number(item.priceKhr), locale)}</td>
-                    <td>
-                      <button
-                        type="button"
-                        className="remove-line"
-                        aria-label={t`Remove line item`}
-                        onClick={() =>
-                          setItems((current) => current.filter((_, row) => row !== index))
-                        }
-                      >
-                        <X size={15} />
-                      </button>
-                    </td>
+              </thead>
+              <tbody>
+                {items.length === 0 ? (
+                  <tr>
+                    <td className="empty-items" colSpan={7}>{t`No work or parts added yet`}</td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-        <div className="subtotal">
-          <span>{t`VISIT SUBTOTAL`}</span>
-          <strong>
-            {usd(subtotalUsd, locale)} <i /> {khr(subtotalKhr, locale)}
-          </strong>
-        </div>
-        <div className="modal-actions">
-          <button type="button" className="button quiet" onClick={onClose}>
-            {t`Cancel`}
-          </button>
-          <button className="button primary" disabled={busy || items.length === 0}>
-            <Check size={15} /> {initial ? t`Save changes` : t`Save service`}
-          </button>
-        </div>
-      </form>
-    </Modal>
+                ) : (
+                  items.map((item, index) => (
+                    <tr key={index}>
+                      {editingItem?.index === index ? (
+                        <>
+                          <td>
+                            <input
+                              className="line-item-input"
+                              aria-label={t`Remark`}
+                              maxLength={160}
+                              value={editingItem.remark}
+                              onChange={(event) =>
+                                setEditingItem({ ...editingItem, remark: event.target.value })
+                              }
+                            />
+                          </td>
+                          <td>
+                            <input
+                              className="line-item-input"
+                              aria-label={t`Quantity`}
+                              inputMode="numeric"
+                              maxLength={9}
+                              value={editingItem.quantity}
+                              onChange={(event) => {
+                                const value = limitIntegerInput(event.target.value)
+                                if (value !== null)
+                                  setEditingItem({ ...editingItem, quantity: value })
+                              }}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              className="line-item-input"
+                              aria-label={t`Price USD`}
+                              inputMode="decimal"
+                              maxLength={15}
+                              value={editingItem.priceUsd}
+                              onChange={(event) => {
+                                const value = limitDecimalInput(event.target.value)
+                                if (value !== null)
+                                  setEditingItem({ ...editingItem, priceUsd: value })
+                              }}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              className="line-item-input"
+                              aria-label={t`Price KHR`}
+                              inputMode="decimal"
+                              maxLength={21}
+                              value={editingItem.priceKhr}
+                              onChange={(event) => {
+                                const value = limitDecimalInput(event.target.value)
+                                if (value !== null)
+                                  setEditingItem({ ...editingItem, priceKhr: value })
+                              }}
+                            />
+                          </td>
+                          <td>
+                            {usd(
+                              Number(editingItem.quantity) * Number(editingItem.priceUsd || 0),
+                              locale,
+                            )}
+                          </td>
+                          <td>
+                            {khr(
+                              Number(editingItem.quantity) * Number(editingItem.priceKhr || 0),
+                              locale,
+                            )}
+                          </td>
+                          <td>
+                            <div className="line-item-actions">
+                              <button
+                                type="button"
+                                className="line-item-action"
+                                aria-label={t`Save line item`}
+                                disabled={
+                                  !editingItem.remark.trim() ||
+                                  !isValidQuantity(editingItem.quantity) ||
+                                  !isValidAmount(editingItem.priceUsd, 99999999.999999) ||
+                                  !isValidAmount(editingItem.priceKhr, 99999999999999.999999)
+                                }
+                                onClick={saveEditedItem}
+                              >
+                                <Check size={15} />
+                              </button>
+                              <button
+                                type="button"
+                                className="line-item-action"
+                                aria-label={t`Cancel line item edit`}
+                                onClick={() => setEditingItem(null)}
+                              >
+                                <X size={15} />
+                              </button>
+                            </div>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td>{item.remark}</td>
+                          <td>{item.quantity}</td>
+                          <td>{usd(Number(item.priceUsd), locale)}</td>
+                          <td>{khr(Number(item.priceKhr), locale)}</td>
+                          <td>{usd(item.quantity * Number(item.priceUsd), locale)}</td>
+                          <td>{khr(item.quantity * Number(item.priceKhr), locale)}</td>
+                          <td>
+                            <div className="line-item-actions">
+                              <button
+                                type="button"
+                                className="line-item-action"
+                                aria-label={t`Edit line item`}
+                                disabled={editingItem !== null}
+                                onClick={() =>
+                                  setEditingItem({
+                                    index,
+                                    remark: item.remark,
+                                    quantity: String(item.quantity),
+                                    priceUsd: item.priceUsd,
+                                    priceKhr: item.priceKhr,
+                                  })
+                                }
+                              >
+                                <PenLine size={14} />
+                              </button>
+                              <button
+                                type="button"
+                                className="remove-line"
+                                aria-label={t`Remove line item`}
+                                disabled={editingItem !== null}
+                                onClick={() => setItemConfirmation({ type: 'remove', index })}
+                              >
+                                <X size={15} />
+                              </button>
+                            </div>
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+          <div className="subtotal">
+            <span>{t`VISIT SUBTOTAL`}</span>
+            <strong>
+              {usd(subtotalUsd, locale)} <i /> {khr(subtotalKhr, locale)}
+            </strong>
+          </div>
+          <div className="modal-actions">
+            <button type="button" className="button quiet" onClick={onClose}>
+              {t`Cancel`}
+            </button>
+            <button
+              className="button primary"
+              disabled={busy || items.length === 0 || editingItem !== null}
+            >
+              <Check size={15} /> {initial ? t`Save changes` : t`Save service`}
+            </button>
+          </div>
+        </form>
+      </Modal>
+      {itemConfirmation && (
+        <ConfirmDialog
+          title={itemConfirmation.type === 'update' ? t`Update line item?` : t`Remove line item?`}
+          description={
+            itemConfirmation.type === 'update'
+              ? t`Save these changes to the line item?`
+              : t`This removes the line item from this service visit.`
+          }
+          confirmLabel={itemConfirmation.type === 'update' ? t`Update item` : t`Remove item`}
+          confirmVariant={itemConfirmation.type === 'update' ? 'primary' : 'danger'}
+          onCancel={() => setItemConfirmation(null)}
+          onConfirm={confirmItemAction}
+        />
+      )}
+    </>
   )
 }
 

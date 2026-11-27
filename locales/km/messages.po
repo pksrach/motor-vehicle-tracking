@@ -20,6 +20,10 @@ msgstr "សួស្តី {name}។"
 msgid "{count}d ago"
 msgstr "កន្លងទៅ {count} ថ្ងៃ"
 
+#: components/tracker-dashboard.tsx:1155
+msgid "Save line item"
+msgstr "រក្សាទុកធាតុ"
+
 #: components/tracker-dashboard.tsx:111
 msgid "Error: Browser storage is unavailable, so the selected vehicle could not be restored."
 msgstr "កំហុស៖ មិនអាចប្រើកន្លែងផ្ទុកក្នុងកម្មវិធីរុករកបានទេ ដូច្នេះមិនអាចស្ដារយានយន្តដែលបានជ្រើសរើសឡើងវិញ។"
@@ -56,13 +60,17 @@ msgstr "កាលបរិច្ឆេទថែទាំមិនត្រឹម
 msgid "PLATE NOT ADDED"
 msgstr "មិនទាន់បញ្ចូលស្លាកលេខ"
 
-#: components/tracker-dashboard.tsx:930
+#: components/tracker-dashboard.tsx:975
 msgid "KM"
 msgstr "គម"
 
 #: app/login/page.tsx:109
 msgid "Create an account"
 msgstr "បង្កើតគណនី"
+
+#: components/tracker-dashboard.tsx:1244
+msgid "Update line item?"
+msgstr "ធ្វើបច្ចុប្បន្នភាពធាតុនេះឬ?"
 
 #: components/tracker-dashboard.tsx:377
 msgid "Garage"
@@ -107,7 +115,7 @@ msgstr "កែសម្រួលកំណត់ត្រាថែទាំ"
 msgid "GET STARTED"
 msgstr "ចាប់ផ្ដើម"
 
-#: components/tracker-dashboard.tsx:1047
+#: components/tracker-dashboard.tsx:1207
 msgid "Remove line item"
 msgstr "លុបធាតុនេះ"
 
@@ -119,7 +127,7 @@ msgstr "Alex Morgan"
 msgid "Stay ahead of every mile. Your vehicle care, all in one place."
 msgstr "តាមដានរាល់ដំណើរ និងការថែទាំយានយន្តរបស់អ្នកនៅកន្លែងតែមួយ។"
 
-#: components/tracker-dashboard.tsx:1025
+#: components/tracker-dashboard.tsx:1071
 msgid "Actions"
 msgstr "សកម្មភាព"
 
@@ -139,7 +147,7 @@ msgstr "លុបការថែទាំ"
 msgid "LAST SERVICE"
 msgstr "ការថែទាំចុងក្រោយ"
 
-#: components/tracker-dashboard.tsx:920
+#: components/tracker-dashboard.tsx:965
 msgid "Service date"
 msgstr "កាលបរិច្ឆេទថែទាំ"
 
@@ -174,10 +182,10 @@ msgstr "ពាក្យសម្ងាត់របស់អ្នក"
 
 #: components/print-report.tsx:78
 #: components/print-report.tsx:79
-#: components/tracker-dashboard.tsx:970
-#: components/tracker-dashboard.tsx:985
-#: components/tracker-dashboard.tsx:1020
-#: components/tracker-dashboard.tsx:1021
+#: components/tracker-dashboard.tsx:1015
+#: components/tracker-dashboard.tsx:1030
+#: components/tracker-dashboard.tsx:1066
+#: components/tracker-dashboard.tsx:1067
 msgid "Price"
 msgstr "តម្លៃ"
 
@@ -189,6 +197,10 @@ msgstr "មិនអាចផ្ទុកប្រវត្តិថែទាំ
 #: app/register/page.tsx:110
 msgid "Email address"
 msgstr "អាសយដ្ឋានអ៊ីមែល"
+
+#: components/tracker-dashboard.tsx:1127
+msgid "Price KHR"
+msgstr "តម្លៃរៀល"
 
 #: components/tracker-dashboard.tsx:636
 msgid "Choose a vehicle to see its details."
@@ -235,7 +247,7 @@ msgstr "ចំនួនដងនៃការថែទាំ"
 msgid "{count, plural, one {# recorded visit} other {# recorded visits}}"
 msgstr "{count} ដងដែលបានកត់ត្រា"
 
-#: components/tracker-dashboard.tsx:897
+#: components/tracker-dashboard.tsx:941
 msgid "Edit service visit"
 msgstr "កែសម្រួលការថែទាំ"
 
@@ -243,7 +255,7 @@ msgstr "កែសម្រួលការថែទាំ"
 msgid "Create your account"
 msgstr "បង្កើតគណនីរបស់អ្នក"
 
-#: components/tracker-dashboard.tsx:1113
+#: components/tracker-dashboard.tsx:1293
 msgid "Close dialog"
 msgstr "បិទប្រអប់"
 
@@ -264,14 +276,18 @@ msgid "{count, plural, one {visit} other {visits}}"
 msgstr "ដង"
 
 #: components/tracker-dashboard.tsx:804
-#: components/tracker-dashboard.tsx:1069
-#: components/ui/confirm-dialog.tsx:51
+#: components/tracker-dashboard.tsx:1231
+#: components/ui/confirm-dialog.tsx:53
 msgid "Cancel"
 msgstr "បោះបង់"
 
 #: components/print-report.tsx:42
 msgid "Back to overview"
 msgstr "ត្រឡប់ទៅទិដ្ឋភាពទូទៅ"
+
+#: components/tracker-dashboard.tsx:1247
+msgid "Save these changes to the line item?"
+msgstr "រក្សាទុកការផ្លាស់ប្តូរទាំងនេះទៅធាតុនេះឬ?"
 
 #: components/tracker-dashboard.tsx:784
 #: components/tracker-dashboard.tsx:793
@@ -302,7 +318,7 @@ msgstr "សូមស្វាគមន៍មកវិញ"
 msgid "TOTAL SPENT · USD"
 msgstr "ចំណាយសរុប · ដុល្លារ"
 
-#: components/tracker-dashboard.tsx:898
+#: components/tracker-dashboard.tsx:942
 msgid "Record the visit and the work completed."
 msgstr "កត់ត្រាការថែទាំ និងការងារដែលបានបញ្ចប់។"
 
@@ -314,6 +330,10 @@ msgstr "កែសម្រួលព័ត៌មានយានយន្ត"
 #: components/tracker-dashboard.tsx:462
 msgid "Find a part or service"
 msgstr "ស្វែងរកគ្រឿងបន្លាស់ ឬសេវាកម្ម"
+
+#: components/tracker-dashboard.tsx:1250
+msgid "Update item"
+msgstr "ធ្វើបច្ចុប្បន្នភាពធាតុ"
 
 #: components/tracker-dashboard.tsx:359
 msgid "Cambodian riel"
@@ -335,7 +355,7 @@ msgstr "បន្តពីកន្លែងដែលអ្នកបានឈប
 msgid "Start your service history"
 msgstr "ចាប់ផ្ដើមប្រវត្តិថែទាំរបស់អ្នក"
 
-#: components/tracker-dashboard.tsx:1062
+#: components/tracker-dashboard.tsx:1224
 msgid "VISIT SUBTOTAL"
 msgstr "សរុបការថែទាំ"
 
@@ -375,7 +395,7 @@ msgstr "ព្រឹក"
 msgid "CURRENT VEHICLE"
 msgstr "យានយន្តបច្ចុប្បន្ន"
 
-#: components/tracker-dashboard.tsx:930
+#: components/tracker-dashboard.tsx:975
 msgid "Odometer"
 msgstr "ចម្ងាយលើម៉ែត្រ"
 
@@ -386,6 +406,10 @@ msgstr "ស្លាកលេខ"
 #: components/print-report.tsx:51
 msgid "Maintenance report"
 msgstr "របាយការណ៍ថែទាំ"
+
+#: components/tracker-dashboard.tsx:1244
+msgid "Remove line item?"
+msgstr "លុបធាតុនេះឬ?"
 
 #: components/tracker-dashboard.tsx:572
 msgid "No service visits yet"
@@ -435,6 +459,10 @@ msgstr "លុបការថែទាំនេះ និងធាតុទា�
 msgid "Private by design. Your records belong to your account."
 msgstr "រចនាឡើងដោយគិតពីភាពឯកជន។ កំណត់ត្រារបស់អ្នកជាកម្មសិទ្ធិគណនីរបស់អ្នក។"
 
+#: components/tracker-dashboard.tsx:1248
+msgid "This removes the line item from this service visit."
+msgstr "ធាតុនេះនឹងត្រូវបានដកចេញពីការថែទាំនេះ។"
+
 #: components/tracker-dashboard.tsx:610
 msgid "Lifetime spend"
 msgstr "ចំណាយសរុប"
@@ -447,7 +475,7 @@ msgstr "យានយន្តរបស់អ្នក"
 msgid "Visits tracked"
 msgstr "ចំនួនដងដែលបានតាមដាន"
 
-#: components/tracker-dashboard.tsx:935
+#: components/tracker-dashboard.tsx:980
 msgid "Optional"
 msgstr "មិនចាំបាច់បញ្ចូល"
 
@@ -467,7 +495,7 @@ msgstr "ការថែទាំ"
 msgid "Unable to sign in right now. Please try again."
 msgstr "មិនអាចចូលបានទេនៅពេលនេះ។ សូមព្យាយាមម្តងទៀត។"
 
-#: components/tracker-dashboard.tsx:1032
+#: components/tracker-dashboard.tsx:1078
 msgid "No work or parts added yet"
 msgstr "មិនទាន់មានការងារ ឬគ្រឿងបន្លាស់បន្ថែមនៅឡើយទេ"
 
@@ -509,7 +537,7 @@ msgstr "កាលបរិច្ឆេទ"
 msgid "afternoon"
 msgstr "រសៀល"
 
-#: components/tracker-dashboard.tsx:949
+#: components/tracker-dashboard.tsx:994
 msgid "e.g. Change engine oil"
 msgstr "ឧ. ប្ដូរប្រេងម៉ាស៊ីន"
 
@@ -522,7 +550,7 @@ msgstr "តាមដានផ្លូវ"
 msgid "you@example.com"
 msgstr "you@example.com"
 
-#: components/tracker-dashboard.tsx:1011
+#: components/tracker-dashboard.tsx:1057
 msgid "Add item"
 msgstr "បន្ថែមធាតុ"
 
@@ -574,7 +602,7 @@ msgstr "យានយន្ត"
 msgid "Your name"
 msgstr "ឈ្មោះរបស់អ្នក"
 
-#: components/tracker-dashboard.tsx:942
+#: components/tracker-dashboard.tsx:987
 msgid "Work & parts"
 msgstr "ការងារ និងគ្រឿងបន្លាស់"
 
@@ -595,6 +623,10 @@ msgstr "សរុបគ្រប់ដងនៃការថែទាំ"
 msgid "That email and password combination wasn’t recognized."
 msgstr "អ៊ីមែល ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវទេ។"
 
+#: components/tracker-dashboard.tsx:1113
+msgid "Price USD"
+msgstr "តម្លៃដុល្លារ"
+
 #: app/login/page.tsx:57
 msgid "in view."
 msgstr "ឱ្យបានច្បាស់។"
@@ -606,6 +638,10 @@ msgstr "ព័ត៌មានទាំងអស់"
 #: components/tracker-dashboard.tsx:310
 msgid "Settings"
 msgstr "ការកំណត់"
+
+#: components/tracker-dashboard.tsx:1190
+msgid "Edit line item"
+msgstr "កែសម្រួលធាតុ"
 
 #: app/login/page.tsx:59
 msgid "A calmer way to care for every vehicle you own."
@@ -633,8 +669,9 @@ msgid "OWNER"
 msgstr "ម្ចាស់"
 
 #: components/print-report.tsx:77
-#: components/tracker-dashboard.tsx:955
-#: components/tracker-dashboard.tsx:1019
+#: components/tracker-dashboard.tsx:1000
+#: components/tracker-dashboard.tsx:1065
+#: components/tracker-dashboard.tsx:1099
 msgid "Quantity"
 msgstr "ចំនួន"
 
@@ -645,6 +682,10 @@ msgstr "កំណត់ត្រាថែទាំរបស់អ្នកនឹ
 #: components/tracker-dashboard.tsx:572
 msgid "No matching service items"
 msgstr "រកមិនឃើញធាតុថែទាំដែលត្រូវគ្នាទេ"
+
+#: components/tracker-dashboard.tsx:1250
+msgid "Remove item"
+msgstr "លុបធាតុ"
 
 #: components/tracker-dashboard.tsx:411
 msgid "No plate number"
@@ -662,7 +703,7 @@ msgid "Language"
 msgstr "ភាសា"
 
 #: components/tracker-dashboard.tsx:328
-#: components/tracker-dashboard.tsx:897
+#: components/tracker-dashboard.tsx:941
 msgid "Log a service"
 msgstr "កត់ត្រាការថែទាំ"
 
@@ -674,8 +715,9 @@ msgstr "បានបន្ថែមយានយន្ត។"
 msgid "New to Motive?"
 msgstr "ទើបប្រើ Motive មែនទេ?"
 
-#: components/tracker-dashboard.tsx:946
-#: components/tracker-dashboard.tsx:1018
+#: components/tracker-dashboard.tsx:991
+#: components/tracker-dashboard.tsx:1064
+#: components/tracker-dashboard.tsx:1088
 msgid "Remark"
 msgstr "សេចក្ដីពិពណ៌នា"
 
@@ -685,10 +727,14 @@ msgstr "បានធ្វើបច្ចុប្បន្នភាពព័ត
 
 #: components/print-report.tsx:80
 #: components/print-report.tsx:81
-#: components/tracker-dashboard.tsx:1022
-#: components/tracker-dashboard.tsx:1023
+#: components/tracker-dashboard.tsx:1068
+#: components/tracker-dashboard.tsx:1069
 msgid "Subtotal"
 msgstr "សរុបរង"
+
+#: components/tracker-dashboard.tsx:1169
+msgid "Cancel line item edit"
+msgstr "បោះបង់ការកែសម្រួលធាតុ"
 
 #: components/tracker-dashboard.tsx:647
 msgid "Longer journeys."
@@ -703,7 +749,7 @@ msgid "Save vehicle"
 msgstr "រក្សាទុកយានយន្ត"
 
 #: components/tracker-dashboard.tsx:807
-#: components/tracker-dashboard.tsx:1072
+#: components/tracker-dashboard.tsx:1237
 msgid "Save changes"
 msgstr "រក្សាទុកការកែប្រែ"
 
@@ -731,6 +777,6 @@ msgstr "កំពុងផ្ទុកប្រវត្តិថែទាំ...
 msgid "Remove {vehicleName} and all its service history?"
 msgstr "ដក {vehicleName} និងប្រវត្តិថែទាំទាំងអស់ចេញឬ?"
 
-#: components/tracker-dashboard.tsx:1072
+#: components/tracker-dashboard.tsx:1237
 msgid "Save service"
 msgstr "រក្សាទុកការថែទាំ"

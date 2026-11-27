@@ -32,8 +32,8 @@ const statements = [
     "maintenanceRecordId" text NOT NULL,
     "remark" text NOT NULL,
     "quantity" numeric(12, 3) NOT NULL DEFAULT 1,
-    "priceUsd" numeric(11, 3) NOT NULL DEFAULT '0',
-    "priceKhr" numeric(17, 3) NOT NULL DEFAULT '0',
+    "priceUsd" numeric(14, 6) NOT NULL DEFAULT '0',
+    "priceKhr" numeric(20, 6) NOT NULL DEFAULT '0',
     "createdAt" timestamp with time zone NOT NULL DEFAULT now()
   )`,
   'ALTER TABLE "maintenance_item" ADD COLUMN IF NOT EXISTS "quantity" numeric(12, 3) NOT NULL DEFAULT 1',
@@ -61,12 +61,15 @@ const statements = [
         WHERE table_schema = current_schema()
           AND table_name = 'maintenance_item'
           AND column_name = 'priceUsd'
-          AND data_type = 'numeric'
-          AND numeric_scale < 3
+          AND (
+            data_type <> 'numeric'
+            OR numeric_scale IS DISTINCT FROM 6
+            OR numeric_precision IS DISTINCT FROM 14
+          )
       ) THEN
         ALTER TABLE "maintenance_item"
-          ALTER COLUMN "priceUsd" TYPE numeric(11, 3)
-          USING "priceUsd"::numeric(11, 3);
+          ALTER COLUMN "priceUsd" TYPE numeric(14, 6)
+          USING "priceUsd"::numeric(14, 6);
       END IF;
       IF EXISTS (
         SELECT 1
@@ -74,12 +77,15 @@ const statements = [
         WHERE table_schema = current_schema()
           AND table_name = 'maintenance_item'
           AND column_name = 'priceKhr'
-          AND data_type = 'numeric'
-          AND numeric_scale < 3
+          AND (
+            data_type <> 'numeric'
+            OR numeric_scale IS DISTINCT FROM 6
+            OR numeric_precision IS DISTINCT FROM 20
+          )
       ) THEN
         ALTER TABLE "maintenance_item"
-          ALTER COLUMN "priceKhr" TYPE numeric(17, 3)
-          USING "priceKhr"::numeric(17, 3);
+          ALTER COLUMN "priceKhr" TYPE numeric(20, 6)
+          USING "priceKhr"::numeric(20, 6);
       END IF;
     END
   $$`,

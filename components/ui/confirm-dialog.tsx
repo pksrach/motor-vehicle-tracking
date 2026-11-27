@@ -7,6 +7,7 @@ type ConfirmDialogProps = {
   title: string
   description: string
   confirmLabel: string
+  confirmVariant?: 'danger' | 'primary'
   onConfirm: () => void
   onCancel: () => void
 }
@@ -15,6 +16,7 @@ export function ConfirmDialog({
   title,
   description,
   confirmLabel,
+  confirmVariant = 'danger',
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
@@ -50,7 +52,11 @@ export function ConfirmDialog({
           <button type="button" className="button quiet" onClick={onCancel} autoFocus>
             {t`Cancel`}
           </button>
-          <button type="button" className="button confirm-danger" onClick={onConfirm}>
+          <button
+            type="button"
+            className={`button ${confirmVariant === 'danger' ? 'confirm-danger' : 'primary'}`}
+            onClick={onConfirm}
+          >
             {confirmLabel}
           </button>
         </div>

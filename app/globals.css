@@ -793,6 +793,7 @@ body {
   gap: 4px;
 }
 .record-controls button,
+.line-item-action,
 .remove-line {
   width: 27px;
   height: 27px;
@@ -805,6 +806,7 @@ body {
   cursor: pointer;
 }
 .record-controls button:hover,
+.line-item-action:hover,
 .remove-line:hover {
   background: #2c333e;
   color: #f0ad4e;
@@ -1183,6 +1185,30 @@ body {
 }
 .line-items-table td:first-child {
   overflow-wrap: anywhere;
+}
+.line-item-input {
+  width: 100%;
+  min-width: 0;
+  min-height: 30px;
+  padding: 5px 6px;
+  border: 1px solid #363e4b;
+  border-radius: 5px;
+  outline: none;
+  background: #121720;
+  color: #eee;
+  font: inherit;
+}
+.line-item-input:focus {
+  border-color: #dba14d;
+  box-shadow: 0 0 0 2px #dba14d22;
+}
+.line-item-actions {
+  display: flex;
+  gap: 2px;
+}
+.line-item-action:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 .remove-line {
   display: grid;

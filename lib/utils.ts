@@ -33,13 +33,13 @@ export function limitIntegerInput(value: string) {
 export function limitDecimalInput(value: string) {
   if (!/^\d*\.?\d*$/.test(value)) return null
   const [whole, fraction] = value.split('.')
-  return fraction === undefined ? whole : `${whole}.${fraction.slice(0, 3)}`
+  return fraction === undefined ? whole : `${whole}.${fraction.slice(0, 6)}`
 }
 
 export function isValidAmount(value: string, max: number) {
   const amount = Number(value)
   return (
-    Number.isFinite(amount) && amount >= 0 && amount <= max && Number(amount.toFixed(3)) === amount
+    Number.isFinite(amount) && amount >= 0 && amount <= max && Number(amount.toFixed(6)) === amount
   )
 }
 
@@ -52,12 +52,12 @@ export function usd(value: number, locale: Locale) {
   return new Intl.NumberFormat(formatLocale(locale), {
     style: 'currency',
     currency: 'USD',
-    maximumFractionDigits: 3,
+    maximumFractionDigits: 6,
   }).format(value)
 }
 
 export function khr(value: number, locale: Locale) {
-  return `${new Intl.NumberFormat(formatLocale(locale), { maximumFractionDigits: 3 }).format(value)} ៛`
+  return `${new Intl.NumberFormat(formatLocale(locale), { maximumFractionDigits: 6 }).format(value)} ៛`
 }
 
 export function dateLabel(value: string, locale: Locale) {
