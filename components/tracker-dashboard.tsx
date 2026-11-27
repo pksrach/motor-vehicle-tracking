@@ -794,14 +794,32 @@ function ServiceDialog({
       remark: item.remark,
       priceUsd: item.priceUsd,
       priceKhr: item.priceKhr,
-    })) ?? [{ remark: '', priceUsd: '0', priceKhr: '0' }],
+    })) ?? [],
   )
+  const [draftRemark, setDraftRemark] = useState('')
+  const [draftPriceUsd, setDraftPriceUsd] = useState('')
+  const [draftPriceKhr, setDraftPriceKhr] = useState('')
   const subtotalUsd = items.reduce((sum, item) => sum + Number(item.priceUsd || 0), 0)
   const subtotalKhr = items.reduce((sum, item) => sum + Number(item.priceKhr || 0), 0)
-  function update(index: number, key: 'remark' | 'priceUsd' | 'priceKhr', value: string) {
-    setItems((current) =>
-      current.map((item, row) => (row === index ? { ...item, [key]: value } : item)),
-    )
+  function addItem() {
+    const priceUsd = Number(draftPriceUsd || 0)
+    const priceKhr = Number(draftPriceKhr || 0)
+    if (
+      !draftRemark.trim() ||
+      !Number.isFinite(priceUsd) ||
+      priceUsd < 0 ||
+      !Number.isFinite(priceKhr) ||
+      priceKhr < 0
+    ) {
+      return
+    }
+    setItems((current) => [
+      ...current,
+      { remark: draftRemark.trim(), priceUsd: String(priceUsd), priceKhr: String(priceKhr) },
+    ])
+    setDraftRemark('')
+    setDraftPriceUsd('')
+    setDraftPriceKhr('')
   }
   return (
     <Modal
@@ -849,11 +867,48 @@ function ServiceDialog({
         </div>
         <div className="line-items-title">
           <strong>{t`Work & parts`}</strong>
+        </div>
+        <div className="item-entry-form">
+          <label className="form-label item-entry-remark">
+            {t`Remark`}
+            <input
+              maxLength={160}
+              placeholder={t`e.g. Change engine oil`}
+              value={draftRemark}
+              onChange={(event) => setDraftRemark(event.target.value)}
+            />
+          </label>
+          <label className="form-label">
+            USD ($)
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={draftPriceUsd}
+              onChange={(event) => setDraftPriceUsd(event.target.value)}
+            />
+          </label>
+          <label className="form-label">
+            KHR (៛)
+            <input
+              type="number"
+              min="0"
+              step="1"
+              value={draftPriceKhr}
+              onChange={(event) => setDraftPriceKhr(event.target.value)}
+            />
+          </label>
           <button
             type="button"
-            className="text-button"
-            onClick={() =>
-              setItems((current) => [...current, { remark: '', priceUsd: '0', priceKhr: '0' }])
+            className="button quiet item-add-button"
+            onClick={addItem}
+            disabled={
+              !draftRemark.trim() ||
+              !Number.isFinite(Number(draftPriceUsd || 0)) ||
+              Number(draftPriceUsd || 0) < 0 ||
+              !Number.isFinite(Number(draftPriceKhr || 0)) ||
+              Number(draftPriceKhr || 0) < 0 ||
+              items.length >= 30
             }
           >
             <CirclePlus size={14} /> {t`Add item`}
@@ -866,55 +921,37 @@ function ServiceDialog({
                 <th scope="col">{t`Remark`}</th>
                 <th scope="col">USD ($)</th>
                 <th scope="col">KHR (៛)</th>
-                <th scope="col"><span className="sr-only">{t`Actions`}</span></th>
+                <th scope="col">
+                  <span className="sr-only">{t`Actions`}</span>
+                </th>
               </tr>
             </thead>
             <tbody>
-              {items.map((item, index) => (
-                <tr key={index}>
-                  <td>
-                    <input
-                      aria-label={t`Remark`}
-                      required
-                      maxLength={160}
-                      placeholder={t`e.g. Change engine oil`}
-                      value={item.remark}
-                      onChange={(event) => update(index, 'remark', event.target.value)}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      aria-label="USD ($)"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={item.priceUsd}
-                      onChange={(event) => update(index, 'priceUsd', event.target.value)}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      aria-label="KHR (៛)"
-                      type="number"
-                      min="0"
-                      step="1"
-                      value={item.priceKhr}
-                      onChange={(event) => update(index, 'priceKhr', event.target.value)}
-                    />
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      className="remove-line"
-                      aria-label={t`Remove line item`}
-                      disabled={items.length === 1}
-                      onClick={() => setItems((current) => current.filter((_, row) => row !== index))}
-                    >
-                      <X size={15} />
-                    </button>
-                  </td>
+              {items.length === 0 ? (
+                <tr>
+                  <td className="empty-items" colSpan={4}>{t`No work or parts added yet`}</td>
                 </tr>
-              ))}
+              ) : (
+                items.map((item, index) => (
+                  <tr key={`${item.remark}-${index}`}>
+                    <td>{item.remark}</td>
+                    <td>{usd(Number(item.priceUsd), locale)}</td>
+                    <td>{khr(Number(item.priceKhr), locale)}</td>
+                    <td>
+                      <button
+                        type="button"
+                        className="remove-line"
+                        aria-label={t`Remove line item`}
+                        onClick={() =>
+                          setItems((current) => current.filter((_, row) => row !== index))
+                        }
+                      >
+                        <X size={15} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -928,7 +965,7 @@ function ServiceDialog({
           <button type="button" className="button quiet" onClick={onClose}>
             {t`Cancel`}
           </button>
-          <button className="button primary" disabled={busy}>
+          <button className="button primary" disabled={busy || items.length === 0}>
             <Check size={15} /> {initial ? t`Save changes` : t`Save service`}
           </button>
         </div>
