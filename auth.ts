@@ -1,7 +1,7 @@
 import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import { compare } from 'bcryptjs'
-import { eq } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
 import { z } from 'zod'
 import { db } from '@/lib/db'
 import { users } from '@/lib/db/schema'
@@ -26,13 +26,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       credentials: { email: {}, password: {} },
       async authorize(credentials) {
         const parsed = z
-          .object({ email: z.string().email(), password: z.string().min(1) })
+          .object({ email: z.string().trim().email().max(160), password: z.string().min(1) })
           .safeParse(credentials)
         if (!parsed.success) return null
+        const email = parsed.data.email.toLowerCase()
         const [user] = await db
           .select()
           .from(users)
-          .where(eq(users.email, parsed.data.email.toLowerCase()))
+          .where(sql`lower(${users.email}) = ${email}`)
           .limit(1)
         if (!user || !(await compare(parsed.data.password, user.passwordHash))) return null
         return { id: user.id, name: user.name, email: user.email }

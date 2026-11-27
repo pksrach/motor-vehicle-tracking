@@ -43,7 +43,7 @@ export default async function RootLayout({
   const locale: Locale = isLocale(localeValue) ? localeValue : 'en'
 
   return (
-    <html lang={locale}>
+    <html lang={locale} data-scroll-behavior="smooth">
       <body className="antialiased">
         <AppI18nProvider initialLocale={locale}>
           {children}
