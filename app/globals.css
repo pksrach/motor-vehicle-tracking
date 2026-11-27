@@ -1680,6 +1680,9 @@ body {
   .item-entry-form {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
+  .line-items-table {
+    min-width: 650px;
+  }
   .item-entry-remark,
   .item-add-button {
     grid-column: 1 / -1;
