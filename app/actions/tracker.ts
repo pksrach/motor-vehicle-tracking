@@ -27,9 +27,17 @@ const recordSchema = z.object({
     .array(
       z.object({
         remark: z.string().trim().min(1).max(160),
-        quantity: z.number().int().positive().max(2147483647),
-        priceUsd: z.number().nonnegative(),
-        priceKhr: z.number().nonnegative(),
+        quantity: z.number().int().positive().max(999999999),
+        priceUsd: z
+          .number()
+          .nonnegative()
+          .max(99999999.999)
+          .refine((price) => Number(price.toFixed(3)) === price),
+        priceKhr: z
+          .number()
+          .nonnegative()
+          .max(99999999999999.999)
+          .refine((price) => Number(price.toFixed(3)) === price),
       }),
     )
     .min(1)
@@ -114,8 +122,8 @@ export async function saveMaintenance(input: unknown, recordId?: string) {
         maintenanceRecordId: id!,
         remark: item.remark,
         quantity: item.quantity,
-        priceUsd: item.priceUsd.toFixed(2),
-        priceKhr: Math.round(item.priceKhr).toString(),
+        priceUsd: item.priceUsd.toFixed(3),
+        priceKhr: item.priceKhr.toFixed(3),
       })),
     )
   })

@@ -58,10 +58,30 @@ type Confirmation =
   { type: 'record'; recordId: string } | { type: 'vehicle'; vehicleId: string; vehicleName: string }
 
 const formatLocale = (locale: 'en' | 'km') => (locale === 'km' ? 'km-KH' : 'en-US')
+const limitIntegerInput = (value: string) => (/^\d*$/.test(value) ? value : null)
+const limitDecimalInput = (value: string) => {
+  if (!/^\d*\.?\d*$/.test(value)) return null
+  const [whole, fraction] = value.split('.')
+  return fraction === undefined ? whole : `${whole}.${fraction.slice(0, 3)}`
+}
+const isValidAmount = (value: string, max: number) => {
+  const amount = Number(value)
+  return (
+    Number.isFinite(amount) && amount >= 0 && amount <= max && Number(amount.toFixed(3)) === amount
+  )
+}
+const isValidQuantity = (value: string) => {
+  const quantity = Number(value)
+  return Number.isInteger(quantity) && quantity > 0 && quantity <= 999999999
+}
 const usd = (value: number, locale: 'en' | 'km') =>
-  new Intl.NumberFormat(formatLocale(locale), { style: 'currency', currency: 'USD' }).format(value)
+  new Intl.NumberFormat(formatLocale(locale), {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 3,
+  }).format(value)
 const khr = (value: number, locale: 'en' | 'km') =>
-  `${new Intl.NumberFormat(formatLocale(locale), { maximumFractionDigits: 0 }).format(value)} ៛`
+  `${new Intl.NumberFormat(formatLocale(locale), { maximumFractionDigits: 3 }).format(value)} ៛`
 const dateLabel = (value: string, locale: 'en' | 'km') =>
   new Intl.DateTimeFormat(locale === 'km' ? 'km-KH' : 'en-GB', {
     day: '2-digit',
@@ -802,8 +822,8 @@ function ServiceDialog({
   )
   const [draftRemark, setDraftRemark] = useState('')
   const [draftQuantity, setDraftQuantity] = useState('1')
-  const [draftPriceUsd, setDraftPriceUsd] = useState('')
-  const [draftPriceKhr, setDraftPriceKhr] = useState('')
+  const [draftPriceUsd, setDraftPriceUsd] = useState('0')
+  const [draftPriceKhr, setDraftPriceKhr] = useState('0')
   const subtotalUsd = items.reduce(
     (sum, item) => sum + item.quantity * Number(item.priceUsd || 0),
     0,
@@ -818,13 +838,9 @@ function ServiceDialog({
     const priceKhr = Number(draftPriceKhr || 0)
     if (
       !draftRemark.trim() ||
-      !Number.isInteger(quantity) ||
-      quantity < 1 ||
-      quantity > 2147483647 ||
-      !Number.isFinite(priceUsd) ||
-      priceUsd < 0 ||
-      !Number.isFinite(priceKhr) ||
-      priceKhr < 0
+      !isValidQuantity(draftQuantity) ||
+      !isValidAmount(draftPriceUsd, 99999999.999) ||
+      !isValidAmount(draftPriceKhr, 99999999999999.999)
     ) {
       return
     }
@@ -839,8 +855,8 @@ function ServiceDialog({
     ])
     setDraftRemark('')
     setDraftQuantity('1')
-    setDraftPriceUsd('')
-    setDraftPriceKhr('')
+    setDraftPriceUsd('0')
+    setDraftPriceKhr('0')
   }
   return (
     <Modal
@@ -904,33 +920,40 @@ function ServiceDialog({
           <label className="form-label">
             {t`Quantity`}
             <input
-              type="number"
-              min="1"
-              max="2147483647"
-              step="1"
-              required
+              type="text"
+              inputMode="numeric"
+              maxLength={9}
               value={draftQuantity}
-              onChange={(event) => setDraftQuantity(event.target.value)}
+              onChange={(event) => {
+                const value = limitIntegerInput(event.target.value)
+                if (value !== null) setDraftQuantity(value)
+              }}
             />
           </label>
           <label className="form-label">
-            {t`Unit price`} USD ($)
+            {t`Price`} USD ($)
             <input
-              type="number"
-              min="0"
-              step="0.01"
+              type="text"
+              inputMode="decimal"
+              maxLength={12}
               value={draftPriceUsd}
-              onChange={(event) => setDraftPriceUsd(event.target.value)}
+              onChange={(event) => {
+                const value = limitDecimalInput(event.target.value)
+                if (value !== null) setDraftPriceUsd(value)
+              }}
             />
           </label>
           <label className="form-label">
-            {t`Unit price`} KHR (៛)
+            {t`Price`} KHR (៛)
             <input
-              type="number"
-              min="0"
-              step="1"
+              type="text"
+              inputMode="decimal"
+              maxLength={18}
               value={draftPriceKhr}
-              onChange={(event) => setDraftPriceKhr(event.target.value)}
+              onChange={(event) => {
+                const value = limitDecimalInput(event.target.value)
+                if (value !== null) setDraftPriceKhr(value)
+              }}
             />
           </label>
           <button
@@ -939,13 +962,9 @@ function ServiceDialog({
             onClick={addItem}
             disabled={
               !draftRemark.trim() ||
-              !Number.isInteger(Number(draftQuantity)) ||
-              Number(draftQuantity) < 1 ||
-              Number(draftQuantity) > 2147483647 ||
-              !Number.isFinite(Number(draftPriceUsd || 0)) ||
-              Number(draftPriceUsd || 0) < 0 ||
-              !Number.isFinite(Number(draftPriceKhr || 0)) ||
-              Number(draftPriceKhr || 0) < 0 ||
+              !isValidQuantity(draftQuantity) ||
+              !isValidAmount(draftPriceUsd, 99999999.999) ||
+              !isValidAmount(draftPriceKhr, 99999999999999.999) ||
               items.length >= 30
             }
           >
@@ -958,8 +977,8 @@ function ServiceDialog({
               <tr>
                 <th scope="col">{t`Remark`}</th>
                 <th scope="col">{t`Quantity`}</th>
-                <th scope="col">{t`Unit price`} USD ($)</th>
-                <th scope="col">{t`Unit price`} KHR (៛)</th>
+                <th scope="col">{t`Price`} USD ($)</th>
+                <th scope="col">{t`Price`} KHR (៛)</th>
                 <th scope="col">{t`Subtotal`} USD ($)</th>
                 <th scope="col">{t`Subtotal`} KHR (៛)</th>
                 <th scope="col">

@@ -32,6 +32,13 @@ export function PrintReport({
   const { t } = useLingui()
   const { locale } = useLanguage()
   const numberLocale = locale === 'km' ? 'km-KH' : 'en-US'
+  const usdNumber = (value: number) =>
+    new Intl.NumberFormat(numberLocale, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 3,
+    }).format(value)
+  const khrNumber = (value: number) =>
+    new Intl.NumberFormat(numberLocale, { maximumFractionDigits: 3 }).format(value)
   const dateRowSpans = new Map<string, number>()
   for (const item of entries) dateRowSpans.set(item.date, (dateRowSpans.get(item.date) ?? 0) + 1)
 
@@ -75,8 +82,8 @@ export function PrintReport({
               <th>{t`Date`}</th>
               <th>{t`Maintenance remark / part`}</th>
               <th>{t`Quantity`}</th>
-              <th>{t`Unit price`} USD ($)</th>
-              <th>{t`Unit price`} KHR (៛)</th>
+              <th>{t`Price`} USD ($)</th>
+              <th>{t`Price`} KHR (៛)</th>
               <th>{t`Subtotal`} USD ($)</th>
               <th>{t`Subtotal`} KHR (៛)</th>
             </tr>
@@ -94,10 +101,10 @@ export function PrintReport({
                   )}
                   <td>{item.remark}</td>
                   <td>{item.quantity}</td>
-                  <td>{Number(item.priceUsd).toFixed(2)}</td>
-                  <td>{Number(item.priceKhr).toLocaleString(numberLocale)}</td>
-                  <td>{(item.quantity * Number(item.priceUsd)).toFixed(2)}</td>
-                  <td>{(item.quantity * Number(item.priceKhr)).toLocaleString(numberLocale)}</td>
+                  <td>{usdNumber(Number(item.priceUsd))}</td>
+                  <td>{khrNumber(Number(item.priceKhr))}</td>
+                  <td>{usdNumber(item.quantity * Number(item.priceUsd))}</td>
+                  <td>{khrNumber(item.quantity * Number(item.priceKhr))}</td>
                 </tr>
               )
             })}
@@ -110,8 +117,8 @@ export function PrintReport({
             )}
             <tr className="report-total">
               <td colSpan={6}>{t`GRAND TOTAL`}</td>
-              <td>{totals.usd.toFixed(2)}</td>
-              <td>{totals.khr.toLocaleString(numberLocale)}</td>
+              <td>{usdNumber(totals.usd)}</td>
+              <td>{khrNumber(totals.khr)}</td>
             </tr>
           </tbody>
         </table>
