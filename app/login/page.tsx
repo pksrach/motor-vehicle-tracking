@@ -18,14 +18,19 @@ export default function LoginPage() {
     setBusy(true)
     setError('')
     const form = new FormData(event.currentTarget)
-    const result = await signIn('credentials', {
-      email: form.get('email'),
-      password: form.get('password'),
-      redirect: false,
-    })
-    setBusy(false)
-    if (result?.error) setError(t`That email and password combination wasn’t recognized.`)
-    else router.push('/')
+    try {
+      const result = await signIn('credentials', {
+        email: form.get('email'),
+        password: form.get('password'),
+        redirect: false,
+      })
+      if (result?.error) setError(t`That email and password combination wasn’t recognized.`)
+      else router.push('/')
+    } catch {
+      setError(t`Unable to sign in right now. Please try again.`)
+    } finally {
+      setBusy(false)
+    }
   }
   return (
     <main className="auth-page">
