@@ -6,6 +6,7 @@ import { useLingui } from '@lingui/react/macro'
 import { useLanguage } from '@/components/i18n-provider'
 import { LanguageSwitcher } from '@/components/language-switcher'
 import { PrintButton } from '@/components/print-button'
+import { khr, usd } from '@/lib/utils'
 
 type ReportEntry = {
   recordId: string
@@ -31,15 +32,6 @@ export function PrintReport({
 }) {
   const { t } = useLingui()
   const { locale } = useLanguage()
-  const numberLocale = locale === 'km' ? 'km-KH' : 'en-US'
-  const usdNumber = (value: number) =>
-    new Intl.NumberFormat(numberLocale, {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 3,
-    }).format(value)
-  const khrNumber = (value: number) =>
-    `${new Intl.NumberFormat(numberLocale, { maximumFractionDigits: 3 }).format(value)} ៛`
   const dateRowSpans = new Map<string, number>()
   for (const item of entries) dateRowSpans.set(item.date, (dateRowSpans.get(item.date) ?? 0) + 1)
 
@@ -102,10 +94,10 @@ export function PrintReport({
                   )}
                   <td>{item.remark}</td>
                   <td>{item.quantity}</td>
-                  <td>{usdNumber(Number(item.priceUsd))}</td>
-                  <td>{khrNumber(Number(item.priceKhr))}</td>
-                  <td>{usdNumber(item.quantity * Number(item.priceUsd))}</td>
-                  <td>{khrNumber(item.quantity * Number(item.priceKhr))}</td>
+                  <td>{usd(Number(item.priceUsd), locale)}</td>
+                  <td>{khr(Number(item.priceKhr), locale)}</td>
+                  <td>{usd(item.quantity * Number(item.priceUsd), locale)}</td>
+                  <td>{khr(item.quantity * Number(item.priceKhr), locale)}</td>
                 </tr>
               )
             })}
@@ -118,8 +110,8 @@ export function PrintReport({
             )}
             <tr className="report-total">
               <td colSpan={6}>{t`GRAND TOTAL`}</td>
-              <td>{usdNumber(totals.usd)}</td>
-              <td>{khrNumber(totals.khr)}</td>
+              <td>{usd(totals.usd, locale)}</td>
+              <td>{khr(totals.khr, locale)}</td>
             </tr>
           </tbody>
         </table>

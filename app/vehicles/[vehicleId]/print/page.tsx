@@ -6,6 +6,7 @@ import { auth } from '@/auth'
 import { db } from '@/lib/db'
 import { maintenanceItems, maintenanceRecords, vehicles } from '@/lib/db/schema'
 import { isLocale, type Locale } from '@/lib/i18n'
+import { formatReportDate, maintenanceTotals } from '@/lib/utils'
 
 export default async function PrintReport({ params }: { params: Promise<{ vehicleId: string }> }) {
   const session = await auth()
@@ -13,12 +14,6 @@ export default async function PrintReport({ params }: { params: Promise<{ vehicl
   const cookieStore = await cookies()
   const localeValue = cookieStore.get('locale')?.value ?? 'en'
   const locale: Locale = isLocale(localeValue) ? localeValue : 'en'
-  const formatDate = (date: Date) =>
-    new Intl.DateTimeFormat(locale === 'km' ? 'km-KH' : 'en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    }).format(date)
   const { vehicleId } = await params
   const [vehicle] = await db
     .select()
@@ -58,23 +53,19 @@ export default async function PrintReport({ params }: { params: Promise<{ vehicl
         )
         .orderBy(desc(maintenanceRecords.serviceDate))
     : []
-  const recordDates = new Map(records.map((record) => [record.id, formatDate(record.serviceDate)]))
+  const recordDates = new Map(
+    records.map((record) => [record.id, formatReportDate(record.serviceDate, locale)]),
+  )
   const reportEntries = entries.map((item) => ({
     ...item,
     date: recordDates.get(item.recordId) || '—',
   }))
-  const totals = entries.reduce(
-    (total, item) => ({
-      usd: total.usd + item.quantity * Number(item.priceUsd),
-      khr: total.khr + item.quantity * Number(item.priceKhr),
-    }),
-    { usd: 0, khr: 0 },
-  )
+  const totals = maintenanceTotals(entries)
   return (
     <PrintReportView
       vehicle={{ name: vehicle.name, plateNumber: vehicle.plateNumber }}
       owner={session.user.name || session.user.email || ''}
-      exportedAt={formatDate(new Date())}
+      exportedAt={formatReportDate(new Date(), locale)}
       entries={reportEntries}
       totals={totals}
     />
