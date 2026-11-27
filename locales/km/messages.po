@@ -56,11 +56,11 @@ msgstr "កាលបរិច្ឆេទថែទាំមិនត្រឹម
 msgid "PLATE NOT ADDED"
 msgstr "មិនទាន់បញ្ចូលស្លាកលេខ"
 
-#: components/tracker-dashboard.tsx:839
+#: components/tracker-dashboard.tsx:858
 msgid "KM"
 msgstr "គម"
 
-#: app/login/page.tsx:104
+#: app/login/page.tsx:109
 msgid "Create an account"
 msgstr "បង្កើតគណនី"
 
@@ -76,7 +76,7 @@ msgstr "បន្ថែមយានយន្តដំបូង"
 msgid "Service visit deleted."
 msgstr "បានលុបកំណត់ត្រាថែទាំ។"
 
-#: app/login/page.tsx:101
+#: app/login/page.tsx:106
 #: app/register/page.tsx:135
 msgid "Sign in"
 msgstr "ចូល"
@@ -85,7 +85,7 @@ msgstr "ចូល"
 msgid "Your records are private"
 msgstr "កំណត់ត្រារបស់អ្នកជាឯកជន"
 
-#: app/login/page.tsx:107
+#: app/login/page.tsx:112
 #: app/register/page.tsx:138
 msgid "Your vehicle records stay private to your account."
 msgstr "កំណត់ត្រាយានយន្តរបស់អ្នកមានតែអ្នកប៉ុណ្ណោះដែលអាចមើលឃើញ។"
@@ -107,7 +107,7 @@ msgstr "កែសម្រួលកំណត់ត្រាថែទាំ"
 msgid "GET STARTED"
 msgstr "ចាប់ផ្ដើម"
 
-#: components/tracker-dashboard.tsx:878
+#: components/tracker-dashboard.tsx:945
 msgid "Remove line item"
 msgstr "លុបធាតុនេះ"
 
@@ -118,6 +118,10 @@ msgstr "Alex Morgan"
 #: components/tracker-dashboard.tsx:296
 msgid "Stay ahead of every mile. Your vehicle care, all in one place."
 msgstr "តាមដានរាល់ដំណើរ និងការថែទាំយានយន្តរបស់អ្នកនៅកន្លែងតែមួយ។"
+
+#: components/tracker-dashboard.tsx:926
+msgid "Actions"
+msgstr "សកម្មភាព"
 
 #: components/tracker-dashboard.tsx:338
 msgid "No visits yet"
@@ -135,7 +139,7 @@ msgstr "លុបការថែទាំ"
 msgid "LAST SERVICE"
 msgstr "ការថែទាំចុងក្រោយ"
 
-#: components/tracker-dashboard.tsx:829
+#: components/tracker-dashboard.tsx:848
 msgid "Service date"
 msgstr "កាលបរិច្ឆេទថែទាំ"
 
@@ -143,7 +147,7 @@ msgstr "កាលបរិច្ឆេទថែទាំ"
 msgid "Already have an account?"
 msgstr "មានគណនីរួចហើយឬ?"
 
-#: app/login/page.tsx:91
+#: app/login/page.tsx:96
 #: app/register/page.tsx:120
 msgid "Password"
 msgstr "ពាក្យសម្ងាត់"
@@ -164,11 +168,11 @@ msgstr "ការតាមដានម៉ូតូ និងយានយន្�
 msgid "Welcome, {name}."
 msgstr "សូមស្វាគមន៍ {name}។"
 
-#: app/login/page.tsx:97
+#: app/login/page.tsx:102
 msgid "Your password"
 msgstr "ពាក្យសម្ងាត់របស់អ្នក"
 
-#: app/login/page.tsx:81
+#: app/login/page.tsx:86
 #: app/register/page.tsx:110
 msgid "Email address"
 msgstr "អាសយដ្ឋានអ៊ីមែល"
@@ -218,7 +222,7 @@ msgstr "ចំនួនដងនៃការថែទាំ"
 msgid "{count, plural, one {# recorded visit} other {# recorded visits}}"
 msgstr "{count} ដងដែលបានកត់ត្រា"
 
-#: components/tracker-dashboard.tsx:808
+#: components/tracker-dashboard.tsx:826
 msgid "Edit service visit"
 msgstr "កែសម្រួលការថែទាំ"
 
@@ -226,7 +230,7 @@ msgstr "កែសម្រួលការថែទាំ"
 msgid "Create your account"
 msgstr "បង្កើតគណនីរបស់អ្នក"
 
-#: components/tracker-dashboard.tsx:954
+#: components/tracker-dashboard.tsx:1011
 msgid "Close dialog"
 msgstr "បិទប្រអប់"
 
@@ -247,7 +251,7 @@ msgid "{count, plural, one {visit} other {visits}}"
 msgstr "ដង"
 
 #: components/tracker-dashboard.tsx:757
-#: components/tracker-dashboard.tsx:917
+#: components/tracker-dashboard.tsx:967
 #: components/ui/confirm-dialog.tsx:51
 msgid "Cancel"
 msgstr "បោះបង់"
@@ -265,7 +269,7 @@ msgstr "មិនចាំបាច់បញ្ចូល"
 msgid "Try another part name or clear your search."
 msgstr "សាកល្បងឈ្មោះគ្រឿងបន្លាស់ផ្សេង ឬលុបពាក្យស្វែងរក។"
 
-#: app/login/page.tsx:72
+#: app/login/page.tsx:77
 msgid "Sign in to your garage"
 msgstr "ចូលទៅកាន់យានដ្ឋានរបស់អ្នក"
 
@@ -277,7 +281,7 @@ msgstr "បន្ថែមយានយន្ត រួចកត់ត្រា�
 msgid "Add Motor Vehicle"
 msgstr "បន្ថែមយានជំនិះ"
 
-#: app/login/page.tsx:69
+#: app/login/page.tsx:74
 msgid "WELCOME BACK"
 msgstr "សូមស្វាគមន៍មកវិញ"
 
@@ -285,7 +289,7 @@ msgstr "សូមស្វាគមន៍មកវិញ"
 msgid "TOTAL SPENT · USD"
 msgstr "ចំណាយសរុប · ដុល្លារ"
 
-#: components/tracker-dashboard.tsx:809
+#: components/tracker-dashboard.tsx:827
 msgid "Record the visit and the work completed."
 msgstr "កត់ត្រាការថែទាំ និងការងារដែលបានបញ្ចប់។"
 
@@ -310,7 +314,7 @@ msgstr "កន្លែងប្រើប្រាស់ផ្ទាល់ខ្
 msgid "Something went wrong. Please try again."
 msgstr "មានបញ្ហាកើតឡើង។ សូមព្យាយាមម្ដងទៀត។"
 
-#: app/login/page.tsx:74
+#: app/login/page.tsx:79
 msgid "Pick up right where you left off."
 msgstr "បន្តពីកន្លែងដែលអ្នកបានឈប់។"
 
@@ -318,7 +322,7 @@ msgstr "បន្តពីកន្លែងដែលអ្នកបានឈប
 msgid "Start your service history"
 msgstr "ចាប់ផ្ដើមប្រវត្តិថែទាំរបស់អ្នក"
 
-#: components/tracker-dashboard.tsx:910
+#: components/tracker-dashboard.tsx:960
 msgid "VISIT SUBTOTAL"
 msgstr "សរុបការថែទាំ"
 
@@ -358,7 +362,7 @@ msgstr "ព្រឹក"
 msgid "CURRENT VEHICLE"
 msgstr "យានយន្តបច្ចុប្បន្ន"
 
-#: components/tracker-dashboard.tsx:839
+#: components/tracker-dashboard.tsx:858
 msgid "Odometer"
 msgstr "ចម្ងាយលើម៉ែត្រ"
 
@@ -430,7 +434,7 @@ msgstr "យានយន្តរបស់អ្នក"
 msgid "Visits tracked"
 msgstr "ចំនួនដងដែលបានតាមដាន"
 
-#: components/tracker-dashboard.tsx:844
+#: components/tracker-dashboard.tsx:863
 msgid "Optional"
 msgstr "មិនចាំបាច់បញ្ចូល"
 
@@ -446,11 +450,19 @@ msgstr "ចុងក្រោយ"
 msgid "Service visit"
 msgstr "ការថែទាំ"
 
+#: app/login/page.tsx:30
+msgid "Unable to sign in right now. Please try again."
+msgstr "មិនអាចចូលបានទេនៅពេលនេះ។ សូមព្យាយាមម្តងទៀត។"
+
+#: components/tracker-dashboard.tsx:933
+msgid "No work or parts added yet"
+msgstr "មិនទាន់មានការងារ ឬគ្រឿងបន្លាស់បន្ថែមនៅឡើយទេ"
+
 #: components/tracker-dashboard.tsx:603
 msgid "Keep service dates and mileage up to date to spot patterns in your vehicle care."
 msgstr "ធ្វើបច្ចុប្បន្នភាពកាលបរិច្ឆេទ និងចម្ងាយ ដើម្បីស្វែងយល់ពីការថែទាំយានយន្តរបស់អ្នក។"
 
-#: app/login/page.tsx:47
+#: app/login/page.tsx:52
 msgid "MADE FOR EVERY MILE"
 msgstr "បង្កើតឡើងសម្រាប់រាល់ដំណើរ"
 
@@ -462,11 +474,11 @@ msgstr "កន្លែងធ្វើការ"
 msgid "A complete service record for this vehicle."
 msgstr "កំណត់ត្រាថែទាំពេញលេញសម្រាប់យានយន្តនេះ។"
 
-#: app/login/page.tsx:101
+#: app/login/page.tsx:106
 msgid "Signing in…"
 msgstr "កំពុងចូល…"
 
-#: app/login/page.tsx:39
+#: app/login/page.tsx:44
 #: app/register/page.tsx:57
 #: components/print-report.tsx:48
 msgid "VEHICLE CARE"
@@ -484,20 +496,20 @@ msgstr "កាលបរិច្ឆេទ"
 msgid "afternoon"
 msgstr "រសៀល"
 
-#: components/tracker-dashboard.tsx:870
+#: components/tracker-dashboard.tsx:877
 msgid "e.g. Change engine oil"
 msgstr "ឧ. ប្ដូរប្រេងម៉ាស៊ីន"
 
-#: app/login/page.tsx:50
+#: app/login/page.tsx:55
 msgid "Keep the road"
 msgstr "តាមដានផ្លូវ"
 
-#: app/login/page.tsx:87
+#: app/login/page.tsx:92
 #: app/register/page.tsx:116
 msgid "you@example.com"
 msgstr "you@example.com"
 
-#: components/tracker-dashboard.tsx:859
+#: components/tracker-dashboard.tsx:915
 msgid "Add item"
 msgstr "បន្ថែមធាតុ"
 
@@ -549,7 +561,7 @@ msgstr "យានយន្ត"
 msgid "Your name"
 msgstr "ឈ្មោះរបស់អ្នក"
 
-#: components/tracker-dashboard.tsx:851
+#: components/tracker-dashboard.tsx:870
 msgid "Work & parts"
 msgstr "ការងារ និងគ្រឿងបន្លាស់"
 
@@ -557,7 +569,7 @@ msgstr "ការងារ និងគ្រឿងបន្លាស់"
 msgid "Your vehicles and records, kept together."
 msgstr "រក្សាទុកយានយន្ត និងកំណត់ត្រារបស់អ្នកនៅជាមួយគ្នា។"
 
-#: app/login/page.tsx:61
+#: app/login/page.tsx:66
 #: app/register/page.tsx:81
 msgid "PRIVATE VEHICLE CARE · BUILT AROUND YOU"
 msgstr "ការថែទាំយានយន្តឯកជន · រចនាឡើងសម្រាប់អ្នក"
@@ -570,7 +582,7 @@ msgstr "សរុបគ្រប់ដងនៃការថែទាំ"
 msgid "That email and password combination wasn’t recognized."
 msgstr "អ៊ីមែល ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវទេ។"
 
-#: app/login/page.tsx:52
+#: app/login/page.tsx:57
 msgid "in view."
 msgstr "ឱ្យបានច្បាស់។"
 
@@ -582,7 +594,7 @@ msgstr "ព័ត៌មានទាំងអស់"
 msgid "Settings"
 msgstr "ការកំណត់"
 
-#: app/login/page.tsx:54
+#: app/login/page.tsx:59
 msgid "A calmer way to care for every vehicle you own."
 msgstr "វិធីងាយស្រួល និងស្ងប់ចិត្តក្នុងការថែទាំយានយន្តរបស់អ្នក។"
 
@@ -631,7 +643,7 @@ msgid "Language"
 msgstr "ភាសា"
 
 #: components/tracker-dashboard.tsx:303
-#: components/tracker-dashboard.tsx:808
+#: components/tracker-dashboard.tsx:826
 msgid "Log a service"
 msgstr "កត់ត្រាការថែទាំ"
 
@@ -639,11 +651,12 @@ msgstr "កត់ត្រាការថែទាំ"
 msgid "Vehicle added."
 msgstr "បានបន្ថែមយានយន្ត។"
 
-#: app/login/page.tsx:104
+#: app/login/page.tsx:109
 msgid "New to Motive?"
 msgstr "ទើបប្រើ Motive មែនទេ?"
 
-#: components/tracker-dashboard.tsx:866
+#: components/tracker-dashboard.tsx:874
+#: components/tracker-dashboard.tsx:922
 msgid "Remark"
 msgstr "សេចក្ដីពិពណ៌នា"
 
@@ -664,7 +677,7 @@ msgid "Save vehicle"
 msgstr "រក្សាទុកយានយន្ត"
 
 #: components/tracker-dashboard.tsx:760
-#: components/tracker-dashboard.tsx:920
+#: components/tracker-dashboard.tsx:970
 msgid "Save changes"
 msgstr "រក្សាទុកការកែប្រែ"
 
@@ -680,7 +693,7 @@ msgstr "សរុបការថែទាំ"
 msgid "Delete service record"
 msgstr "លុបកំណត់ត្រាថែទាំ"
 
-#: app/login/page.tsx:52
+#: app/login/page.tsx:57
 msgid "ahead"
 msgstr "ខាងមុខ"
 
@@ -688,6 +701,6 @@ msgstr "ខាងមុខ"
 msgid "Remove {vehicleName} and all its service history?"
 msgstr "ដក {vehicleName} និងប្រវត្តិថែទាំទាំងអស់ចេញឬ?"
 
-#: components/tracker-dashboard.tsx:920
+#: components/tracker-dashboard.tsx:970
 msgid "Save service"
 msgstr "រក្សាទុកការថែទាំ"

@@ -1032,6 +1032,9 @@ body {
   background: #191f29;
   box-shadow: 0 20px 80px #0008;
 }
+.modal-wide {
+  width: min(640px, 100%);
+}
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -1113,7 +1116,7 @@ body {
 }
 .item-entry-form {
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) 105px 105px auto;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr) minmax(0, 0.7fr) auto;
   align-items: end;
   gap: 9px;
   margin-bottom: 12px;
@@ -1124,9 +1127,10 @@ body {
 }
 .item-entry-form .form-label {
   min-width: 0;
+  margin-bottom: 0;
 }
 .item-add-button {
-  min-height: 34px;
+  min-height: 37px;
   white-space: nowrap;
 }
 .item-add-button:disabled {
@@ -1141,7 +1145,7 @@ body {
 }
 .line-items-table {
   width: 100%;
-  min-width: 480px;
+  table-layout: fixed;
   border-collapse: collapse;
   background: #161c25;
   text-align: left;
@@ -1165,7 +1169,7 @@ body {
 }
 .line-items-table th:nth-child(2),
 .line-items-table th:nth-child(3) {
-  width: 105px;
+  width: 84px;
 }
 .line-items-table th:last-child {
   width: 42px;
@@ -1174,6 +1178,9 @@ body {
   padding: 16px 12px;
   color: #84909e;
   text-align: center;
+}
+.line-items-table td:first-child {
+  overflow-wrap: anywhere;
 }
 .remove-line {
   display: grid;

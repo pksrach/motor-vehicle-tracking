@@ -826,6 +826,7 @@ function ServiceDialog({
       title={initial ? t`Edit service visit` : t`Log a service`}
       subtitle={t`Record the visit and the work completed.`}
       onClose={onClose}
+      wide
     >
       <form
         onSubmit={(event) => {
@@ -978,11 +979,13 @@ function Modal({
   title,
   subtitle,
   onClose,
+  wide = false,
   children,
 }: {
   title: string
   subtitle: string
   onClose: () => void
+  wide?: boolean
   children: React.ReactNode
 }) {
   const { t } = useLingui()
@@ -994,7 +997,12 @@ function Modal({
         if (event.target === event.currentTarget) onClose()
       }}
     >
-      <section className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <section
+        className={`modal${wide ? ' modal-wide' : ''}`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+      >
         <header className="modal-header">
           <div>
             <h2 id="modal-title">{title}</h2>
