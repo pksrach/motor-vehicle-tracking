@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useMemo, useState, useTransition } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { signOut } from 'next-auth/react'
 import { plural } from '@lingui/core/macro'
@@ -824,6 +824,7 @@ function ServiceDialog({
   const [draftQuantity, setDraftQuantity] = useState('1')
   const [draftPriceUsd, setDraftPriceUsd] = useState('0')
   const [draftPriceKhr, setDraftPriceKhr] = useState('0')
+  const draftInputSelection = useRef(new WeakMap<HTMLInputElement, boolean>())
   const subtotalUsd = items.reduce(
     (sum, item) => sum + item.quantity * Number(item.priceUsd || 0),
     0,
@@ -832,6 +833,15 @@ function ServiceDialog({
     (sum, item) => sum + item.quantity * Number(item.priceKhr || 0),
     0,
   )
+  function toggleDraftInputSelection(input: HTMLInputElement) {
+    const isSelected = draftInputSelection.current.get(input) ?? false
+    if (isSelected) {
+      input.setSelectionRange(input.value.length, input.value.length)
+    } else {
+      input.select()
+    }
+    draftInputSelection.current.set(input, !isSelected)
+  }
   function addItem() {
     const quantity = Number(draftQuantity)
     const priceUsd = Number(draftPriceUsd || 0)
@@ -924,6 +934,8 @@ function ServiceDialog({
               inputMode="numeric"
               maxLength={9}
               value={draftQuantity}
+              onBlur={(event) => draftInputSelection.current.delete(event.currentTarget)}
+              onClick={(event) => toggleDraftInputSelection(event.currentTarget)}
               onChange={(event) => {
                 const value = limitIntegerInput(event.target.value)
                 if (value !== null) setDraftQuantity(value)
@@ -937,6 +949,8 @@ function ServiceDialog({
               inputMode="decimal"
               maxLength={12}
               value={draftPriceUsd}
+              onBlur={(event) => draftInputSelection.current.delete(event.currentTarget)}
+              onClick={(event) => toggleDraftInputSelection(event.currentTarget)}
               onChange={(event) => {
                 const value = limitDecimalInput(event.target.value)
                 if (value !== null) setDraftPriceUsd(value)
@@ -950,6 +964,8 @@ function ServiceDialog({
               inputMode="decimal"
               maxLength={18}
               value={draftPriceKhr}
+              onBlur={(event) => draftInputSelection.current.delete(event.currentTarget)}
+              onClick={(event) => toggleDraftInputSelection(event.currentTarget)}
               onChange={(event) => {
                 const value = limitDecimalInput(event.target.value)
                 if (value !== null) setDraftPriceKhr(value)
