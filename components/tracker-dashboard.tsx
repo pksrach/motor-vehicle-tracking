@@ -859,53 +859,65 @@ function ServiceDialog({
             <CirclePlus size={14} /> {t`Add item`}
           </button>
         </div>
-        {items.map((item, index) => (
-          <div className="line-item-form" key={index}>
-            <div className="line-item-top">
-              <label className="form-label">
-                {t`Remark`}
-                <input
-                  required
-                  maxLength={160}
-                  placeholder={t`e.g. Change engine oil`}
-                  value={item.remark}
-                  onChange={(event) => update(index, 'remark', event.target.value)}
-                />
-              </label>
-              <button
-                type="button"
-                className="remove-line"
-                aria-label={t`Remove line item`}
-                disabled={items.length === 1}
-                onClick={() => setItems((current) => current.filter((_, row) => row !== index))}
-              >
-                <X size={15} />
-              </button>
-            </div>
-            <div className="form-row">
-              <label className="form-label">
-                USD ($)
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={item.priceUsd}
-                  onChange={(event) => update(index, 'priceUsd', event.target.value)}
-                />
-              </label>
-              <label className="form-label">
-                KHR (៛)
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={item.priceKhr}
-                  onChange={(event) => update(index, 'priceKhr', event.target.value)}
-                />
-              </label>
-            </div>
-          </div>
-        ))}
+        <div className="line-items-table-wrap">
+          <table className="line-items-table">
+            <thead>
+              <tr>
+                <th scope="col">{t`Remark`}</th>
+                <th scope="col">USD ($)</th>
+                <th scope="col">KHR (៛)</th>
+                <th scope="col"><span className="sr-only">{t`Actions`}</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item, index) => (
+                <tr key={index}>
+                  <td>
+                    <input
+                      aria-label={t`Remark`}
+                      required
+                      maxLength={160}
+                      placeholder={t`e.g. Change engine oil`}
+                      value={item.remark}
+                      onChange={(event) => update(index, 'remark', event.target.value)}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      aria-label="USD ($)"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={item.priceUsd}
+                      onChange={(event) => update(index, 'priceUsd', event.target.value)}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      aria-label="KHR (៛)"
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={item.priceKhr}
+                      onChange={(event) => update(index, 'priceKhr', event.target.value)}
+                    />
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      className="remove-line"
+                      aria-label={t`Remove line item`}
+                      disabled={items.length === 1}
+                      onClick={() => setItems((current) => current.filter((_, row) => row !== index))}
+                    >
+                      <X size={15} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <div className="subtotal">
           <span>{t`VISIT SUBTOTAL`}</span>
           <strong>
