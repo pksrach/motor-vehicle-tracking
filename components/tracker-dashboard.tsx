@@ -58,6 +58,20 @@ type Confirmation =
   { type: 'record'; recordId: string } | { type: 'vehicle'; vehicleId: string; vehicleName: string }
 
 const formatLocale = (locale: 'en' | 'km') => (locale === 'km' ? 'km-KH' : 'en-US')
+const khmerMonths = [
+  'មករា',
+  'កុម្ភៈ',
+  'មីនា',
+  'មេសា',
+  'ឧសភា',
+  'មិថុនា',
+  'កក្កដា',
+  'សីហា',
+  'កញ្ញា',
+  'តុលា',
+  'វិច្ឆិកា',
+  'ធ្នូ',
+]
 const limitIntegerInput = (value: string) => (/^\d*$/.test(value) ? value : null)
 const limitDecimalInput = (value: string) => {
   if (!/^\d*\.?\d*$/.test(value)) return null
@@ -82,12 +96,20 @@ const usd = (value: number, locale: 'en' | 'km') =>
   }).format(value)
 const khr = (value: number, locale: 'en' | 'km') =>
   `${new Intl.NumberFormat(formatLocale(locale), { maximumFractionDigits: 3 }).format(value)} ៛`
-const dateLabel = (value: string, locale: 'en' | 'km') =>
-  new Intl.DateTimeFormat(locale === 'km' ? 'km-KH' : 'en-GB', {
+const dateLabel = (value: string, locale: 'en' | 'km') => {
+  const date = new Date(value)
+  if (locale === 'km') {
+    const day = String(date.getDate()).padStart(2, '0')
+    const month = khmerMonths[date.getMonth()]
+    const year = String(date.getFullYear())
+    return `${day} ${month} ${year}`
+  }
+  return new Intl.DateTimeFormat('en-GB', {
     day: '2-digit',
-    month: 'short',
+    month: 'long',
     year: 'numeric',
-  }).format(new Date(value))
+  }).format(date)
+}
 const totalsFor = (record: Record) =>
   record.items.reduce(
     (totals, item) => ({
