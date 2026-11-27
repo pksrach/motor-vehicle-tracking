@@ -42,6 +42,7 @@ type Item = {
   id: string
   maintenanceRecordId: string
   remark: string
+  quantity: number
   priceUsd: string
   priceKhr: string
 }
@@ -70,8 +71,8 @@ const dateLabel = (value: string, locale: 'en' | 'km') =>
 const totalsFor = (record: Record) =>
   record.items.reduce(
     (totals, item) => ({
-      usd: totals.usd + Number(item.priceUsd),
-      khr: totals.khr + Number(item.priceKhr),
+      usd: totals.usd + item.quantity * Number(item.priceUsd),
+      khr: totals.khr + item.quantity * Number(item.priceKhr),
     }),
     { usd: 0, khr: 0 },
   )
@@ -498,12 +499,14 @@ export function TrackerDashboard({
                               <span className="item-check">
                                 <Check size={12} />
                               </span>
-                              <span className="item-name">{item.remark}</span>
+                              <span className="item-name">
+                                {item.remark} × {item.quantity}
+                              </span>
                               <span className="item-price">
-                                {usd(Number(item.priceUsd), locale)}
+                                {usd(item.quantity * Number(item.priceUsd), locale)}
                               </span>
                               <span className="item-price khr-price">
-                                {khr(Number(item.priceKhr), locale)}
+                                {khr(item.quantity * Number(item.priceKhr), locale)}
                               </span>
                             </div>
                           ))}
@@ -780,7 +783,7 @@ function ServiceDialog({
     vehicleId: string
     serviceDate: string
     odometerKm?: number
-    items: { remark: string; priceUsd: number; priceKhr: number }[]
+    items: { remark: string; quantity: number; priceUsd: number; priceKhr: number }[]
   }) => void
 }) {
   const { t } = useLingui()
@@ -792,20 +795,32 @@ function ServiceDialog({
   const [items, setItems] = useState(
     initial?.items.map((item) => ({
       remark: item.remark,
+      quantity: item.quantity,
       priceUsd: item.priceUsd,
       priceKhr: item.priceKhr,
     })) ?? [],
   )
   const [draftRemark, setDraftRemark] = useState('')
+  const [draftQuantity, setDraftQuantity] = useState('1')
   const [draftPriceUsd, setDraftPriceUsd] = useState('')
   const [draftPriceKhr, setDraftPriceKhr] = useState('')
-  const subtotalUsd = items.reduce((sum, item) => sum + Number(item.priceUsd || 0), 0)
-  const subtotalKhr = items.reduce((sum, item) => sum + Number(item.priceKhr || 0), 0)
+  const subtotalUsd = items.reduce(
+    (sum, item) => sum + item.quantity * Number(item.priceUsd || 0),
+    0,
+  )
+  const subtotalKhr = items.reduce(
+    (sum, item) => sum + item.quantity * Number(item.priceKhr || 0),
+    0,
+  )
   function addItem() {
+    const quantity = Number(draftQuantity)
     const priceUsd = Number(draftPriceUsd || 0)
     const priceKhr = Number(draftPriceKhr || 0)
     if (
       !draftRemark.trim() ||
+      !Number.isInteger(quantity) ||
+      quantity < 1 ||
+      quantity > 2147483647 ||
       !Number.isFinite(priceUsd) ||
       priceUsd < 0 ||
       !Number.isFinite(priceKhr) ||
@@ -815,9 +830,15 @@ function ServiceDialog({
     }
     setItems((current) => [
       ...current,
-      { remark: draftRemark.trim(), priceUsd: String(priceUsd), priceKhr: String(priceKhr) },
+      {
+        remark: draftRemark.trim(),
+        quantity,
+        priceUsd: String(priceUsd),
+        priceKhr: String(priceKhr),
+      },
     ])
     setDraftRemark('')
+    setDraftQuantity('1')
     setDraftPriceUsd('')
     setDraftPriceKhr('')
   }
@@ -837,6 +858,7 @@ function ServiceDialog({
             odometerKm: odometerKm ? Number(odometerKm) : undefined,
             items: items.map((item) => ({
               remark: item.remark,
+              quantity: item.quantity,
               priceUsd: Number(item.priceUsd || 0),
               priceKhr: Number(item.priceKhr || 0),
             })),
@@ -880,7 +902,19 @@ function ServiceDialog({
             />
           </label>
           <label className="form-label">
-            USD ($)
+            {t`Quantity`}
+            <input
+              type="number"
+              min="1"
+              max="2147483647"
+              step="1"
+              required
+              value={draftQuantity}
+              onChange={(event) => setDraftQuantity(event.target.value)}
+            />
+          </label>
+          <label className="form-label">
+            {t`Unit price`} USD ($)
             <input
               type="number"
               min="0"
@@ -890,7 +924,7 @@ function ServiceDialog({
             />
           </label>
           <label className="form-label">
-            KHR (៛)
+            {t`Unit price`} KHR (៛)
             <input
               type="number"
               min="0"
@@ -905,6 +939,9 @@ function ServiceDialog({
             onClick={addItem}
             disabled={
               !draftRemark.trim() ||
+              !Number.isInteger(Number(draftQuantity)) ||
+              Number(draftQuantity) < 1 ||
+              Number(draftQuantity) > 2147483647 ||
               !Number.isFinite(Number(draftPriceUsd || 0)) ||
               Number(draftPriceUsd || 0) < 0 ||
               !Number.isFinite(Number(draftPriceKhr || 0)) ||
@@ -920,8 +957,11 @@ function ServiceDialog({
             <thead>
               <tr>
                 <th scope="col">{t`Remark`}</th>
-                <th scope="col">USD ($)</th>
-                <th scope="col">KHR (៛)</th>
+                <th scope="col">{t`Quantity`}</th>
+                <th scope="col">{t`Unit price`} USD ($)</th>
+                <th scope="col">{t`Unit price`} KHR (៛)</th>
+                <th scope="col">{t`Subtotal`} USD ($)</th>
+                <th scope="col">{t`Subtotal`} KHR (៛)</th>
                 <th scope="col">
                   <span className="sr-only">{t`Actions`}</span>
                 </th>
@@ -930,14 +970,17 @@ function ServiceDialog({
             <tbody>
               {items.length === 0 ? (
                 <tr>
-                  <td className="empty-items" colSpan={4}>{t`No work or parts added yet`}</td>
+                  <td className="empty-items" colSpan={7}>{t`No work or parts added yet`}</td>
                 </tr>
               ) : (
                 items.map((item, index) => (
                   <tr key={`${item.remark}-${index}`}>
                     <td>{item.remark}</td>
+                    <td>{item.quantity}</td>
                     <td>{usd(Number(item.priceUsd), locale)}</td>
                     <td>{khr(Number(item.priceKhr), locale)}</td>
+                    <td>{usd(item.quantity * Number(item.priceUsd), locale)}</td>
+                    <td>{khr(item.quantity * Number(item.priceKhr), locale)}</td>
                     <td>
                       <button
                         type="button"

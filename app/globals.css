@@ -1116,7 +1116,7 @@ body {
 }
 .item-entry-form {
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr) minmax(0, 0.7fr) auto;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.45fr) minmax(0, 0.7fr) minmax(0, 0.7fr) auto;
   align-items: end;
   gap: 9px;
   margin-bottom: 12px;
@@ -1167,9 +1167,11 @@ body {
 .line-items-table td:first-child {
   padding-left: 12px;
 }
-.line-items-table th:nth-child(2),
-.line-items-table th:nth-child(3) {
-  width: 84px;
+.line-items-table th:nth-child(2) {
+  width: 55px;
+}
+.line-items-table th:nth-child(n + 3):nth-child(-n + 6) {
+  width: 105px;
 }
 .line-items-table th:last-child {
   width: 42px;

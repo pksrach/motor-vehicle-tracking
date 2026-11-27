@@ -27,6 +27,7 @@ const recordSchema = z.object({
     .array(
       z.object({
         remark: z.string().trim().min(1).max(160),
+        quantity: z.number().int().positive().max(2147483647),
         priceUsd: z.number().nonnegative(),
         priceKhr: z.number().nonnegative(),
       }),
@@ -112,6 +113,7 @@ export async function saveMaintenance(input: unknown, recordId?: string) {
         id: randomUUID(),
         maintenanceRecordId: id!,
         remark: item.remark,
+        quantity: item.quantity,
         priceUsd: item.priceUsd.toFixed(2),
         priceKhr: Math.round(item.priceKhr).toString(),
       })),

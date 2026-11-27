@@ -31,10 +31,12 @@ const statements = [
     "id" text PRIMARY KEY,
     "maintenanceRecordId" text NOT NULL,
     "remark" text NOT NULL,
+    "quantity" integer NOT NULL DEFAULT 1,
     "priceUsd" numeric(10, 2) NOT NULL DEFAULT '0',
     "priceKhr" numeric(14, 0) NOT NULL DEFAULT '0',
     "createdAt" timestamp with time zone NOT NULL DEFAULT now()
   )`,
+  'ALTER TABLE "maintenance_item" ADD COLUMN IF NOT EXISTS "quantity" integer NOT NULL DEFAULT 1',
   'CREATE INDEX IF NOT EXISTS "vehicle_user_idx" ON "vehicle" ("userId")',
   'CREATE INDEX IF NOT EXISTS "maintenance_record_user_vehicle_date_idx" ON "maintenance_record" ("userId", "vehicleId", "serviceDate")',
   'CREATE INDEX IF NOT EXISTS "maintenance_item_record_idx" ON "maintenance_item" ("maintenanceRecordId")',

@@ -24,6 +24,7 @@ export default async function Home() {
           id: maintenanceItems.id,
           maintenanceRecordId: maintenanceItems.maintenanceRecordId,
           remark: maintenanceItems.remark,
+          quantity: maintenanceItems.quantity,
           priceUsd: maintenanceItems.priceUsd,
           priceKhr: maintenanceItems.priceKhr,
         })

@@ -10,6 +10,7 @@ import { PrintButton } from '@/components/print-button'
 type ReportEntry = {
   recordId: string
   remark: string
+  quantity: number
   priceUsd: string
   priceKhr: string
   date: string
@@ -73,8 +74,11 @@ export function PrintReport({
               <th>#</th>
               <th>{t`Date`}</th>
               <th>{t`Maintenance remark / part`}</th>
-              <th>USD ($)</th>
-              <th>KHR (៛)</th>
+              <th>{t`Quantity`}</th>
+              <th>{t`Unit price`} USD ($)</th>
+              <th>{t`Unit price`} KHR (៛)</th>
+              <th>{t`Subtotal`} USD ($)</th>
+              <th>{t`Subtotal`} KHR (៛)</th>
             </tr>
           </thead>
           <tbody>
@@ -89,20 +93,23 @@ export function PrintReport({
                     </td>
                   )}
                   <td>{item.remark}</td>
+                  <td>{item.quantity}</td>
                   <td>{Number(item.priceUsd).toFixed(2)}</td>
                   <td>{Number(item.priceKhr).toLocaleString(numberLocale)}</td>
+                  <td>{(item.quantity * Number(item.priceUsd)).toFixed(2)}</td>
+                  <td>{(item.quantity * Number(item.priceKhr)).toLocaleString(numberLocale)}</td>
                 </tr>
               )
             })}
             {!entries.length && (
               <tr>
-                <td colSpan={5} className="report-empty">
+                <td colSpan={8} className="report-empty">
                   {t`No maintenance entries recorded yet.`}
                 </td>
               </tr>
             )}
             <tr className="report-total">
-              <td colSpan={3}>{t`GRAND TOTAL`}</td>
+              <td colSpan={6}>{t`GRAND TOTAL`}</td>
               <td>{totals.usd.toFixed(2)}</td>
               <td>{totals.khr.toLocaleString(numberLocale)}</td>
             </tr>

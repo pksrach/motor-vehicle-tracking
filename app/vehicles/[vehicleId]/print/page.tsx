@@ -41,6 +41,7 @@ export default async function PrintReport({ params }: { params: Promise<{ vehicl
         .select({
           recordId: maintenanceItems.maintenanceRecordId,
           remark: maintenanceItems.remark,
+          quantity: maintenanceItems.quantity,
           priceUsd: maintenanceItems.priceUsd,
           priceKhr: maintenanceItems.priceKhr,
         })
@@ -64,8 +65,8 @@ export default async function PrintReport({ params }: { params: Promise<{ vehicl
   }))
   const totals = entries.reduce(
     (total, item) => ({
-      usd: total.usd + Number(item.priceUsd),
-      khr: total.khr + Number(item.priceKhr),
+      usd: total.usd + item.quantity * Number(item.priceUsd),
+      khr: total.khr + item.quantity * Number(item.priceKhr),
     }),
     { usd: 0, khr: 0 },
   )

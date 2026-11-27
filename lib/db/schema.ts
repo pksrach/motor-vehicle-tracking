@@ -49,6 +49,7 @@ export const maintenanceItems = pgTable(
     id: text('id').primaryKey(),
     maintenanceRecordId: text('maintenanceRecordId').notNull(),
     remark: text('remark').notNull(),
+    quantity: integer('quantity').notNull().default(1),
     priceUsd: numeric('priceUsd', { precision: 10, scale: 2 }).notNull().default('0'),
     priceKhr: numeric('priceKhr', { precision: 14, scale: 0 }).notNull().default('0'),
     createdAt: timestamp('createdAt', { withTimezone: true }).notNull().defaultNow(),
