@@ -1,6 +1,15 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from 'react'
 import Link from 'next/link'
 import { signOut } from 'next-auth/react'
 import { plural } from '@lingui/core/macro'
@@ -17,7 +26,7 @@ import {
   ChevronDown,
   CirclePlus,
   Clock3,
-  Eye,
+  Edit,
   FileText,
   Gauge,
   Pencil,
@@ -26,27 +35,29 @@ import {
   Settings2,
   ShieldCheck,
   Sparkles,
+  Tags,
   Trash2,
   Wrench,
   X,
 } from 'lucide-react'
 import {
+  createMaintenanceRemark,
   createVehicle,
   deleteVehicle,
   getVehicleServiceHistory,
   removeMaintenance,
+  searchMaintenanceRemarks,
   saveMaintenance,
   updateVehicle,
 } from '@/app/actions/tracker'
 import { DashboardLoading } from '@/components/dashboard-loading'
+import { StandardTable, type ColumnDefinition } from '@/components/standard-table'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import {
   dateLabel,
   isValidAmount,
-  isValidQuantity,
   khr,
   limitDecimalInput,
-  limitIntegerInput,
   maintenanceTotals,
   normalizeDecimalInput,
   usd,
@@ -56,11 +67,11 @@ type Item = {
   id: string
   maintenanceRecordId: string
   remark: string
-  quantity: number
   priceUsd: string
   priceKhr: string
 }
 type Record = { id: string; serviceDate: string; odometerKm: number | null; items: Item[] }
+type RemarkOption = { id: string; name: string }
 type Vehicle = {
   id: string
   name: string
@@ -88,6 +99,8 @@ export function TrackerDashboard({
     'Vehicle not found or access denied': t`Vehicle not found or access denied`,
     'Invalid service date': t`Invalid service date`,
     'Record not found or access denied': t`Record not found or access denied`,
+    'Remark already exists': t`A remark with this name already exists.`,
+    'Remark not found or access denied': t`Remark not found or access denied`,
   }
   const [vehicles] = useState(initialVehicles)
   const [selectedId, setSelectedId] = useState(initialVehicles[0]?.id ?? '')
@@ -123,7 +136,9 @@ export function TrackerDashboard({
   const [editing, setEditing] = useState<Record | null>(null)
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null)
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null)
-  const [activeSection, setActiveSection] = useState<'overview' | 'garage' | 'timeline'>('overview')
+  const [activeSection, setActiveSection] = useState<
+    'overview' | 'garage' | 'timeline' | 'remarks'
+  >('overview')
   const [pending, startTransition] = useTransition()
   const displayName = userName === 'Driver' ? t`Driver` : userName
   const vehicleName = confirmation?.type === 'vehicle' ? confirmation.vehicleName : ''
@@ -208,6 +223,14 @@ export function TrackerDashboard({
     }
   }
 
+  function navigateToSection(section: 'overview' | 'garage' | 'timeline' | 'remarks') {
+    setActiveSection(section)
+    const targetId = section === 'overview' ? 'overview' : section
+    window.requestAnimationFrame(() => {
+      document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }
+
   function run(action: () => Promise<void>, success: string) {
     setNotice('')
     setNoticeIsError(false)
@@ -256,7 +279,10 @@ export function TrackerDashboard({
           className={`nav-item ${activeSection === 'overview' ? 'active' : ''}`}
           href="#overview"
           aria-current={activeSection === 'overview' ? 'location' : undefined}
-          onClick={() => setActiveSection('overview')}
+          onClick={(event) => {
+            event.preventDefault()
+            navigateToSection('overview')
+          }}
         >
           <Activity size={17} /> {t`Overview`}
         </a>
@@ -264,7 +290,10 @@ export function TrackerDashboard({
           className={`nav-item ${activeSection === 'garage' ? 'active' : ''}`}
           href="#garage"
           aria-current={activeSection === 'garage' ? 'location' : undefined}
-          onClick={() => setActiveSection('garage')}
+          onClick={(event) => {
+            event.preventDefault()
+            navigateToSection('garage')
+          }}
         >
           <CarFront size={17} /> {t`My garage`} <span className="nav-count">{vehicles.length}</span>
         </a>
@@ -272,9 +301,23 @@ export function TrackerDashboard({
           className={`nav-item ${activeSection === 'timeline' ? 'active' : ''}`}
           href="#timeline"
           aria-current={activeSection === 'timeline' ? 'location' : undefined}
-          onClick={() => setActiveSection('timeline')}
+          onClick={(event) => {
+            event.preventDefault()
+            navigateToSection('timeline')
+          }}
         >
           <Clock3 size={17} /> {t`Service history`}
+        </a>
+        <a
+          className={`nav-item ${activeSection === 'remarks' ? 'active' : ''}`}
+          href="#remarks"
+          aria-current={activeSection === 'remarks' ? 'location' : undefined}
+          onClick={(event) => {
+            event.preventDefault()
+            navigateToSection('remarks')
+          }}
+        >
+          <Tags size={17} /> {t`Remarks`}
         </a>
         <div className="sidebar-spacer" />
         <div className="secure-note">
@@ -303,7 +346,9 @@ export function TrackerDashboard({
               ? t`My garage`
               : activeSection === 'timeline'
                 ? t`Service history`
-                : t`Overview`}
+                : activeSection === 'remarks'
+                  ? t`Remarks`
+                  : t`Overview`}
           </div>
           <div className="top-actions">
             <span className="live-dot">
@@ -315,357 +360,378 @@ export function TrackerDashboard({
             </button>
           </div>
         </header>
-        <section className="welcome">
-          <div>
-            <div className="eyebrow">
-              <Sparkles size={13} /> {t`YOUR GARAGE, IN GOOD ORDER`}
-            </div>
-            <h1>{greeting ? t`Good ${greeting}, ${name}.` : t`Welcome, ${name}.`}</h1>
-            <p>{t`Stay ahead of every mile. Your vehicle care, all in one place.`}</p>
-          </div>
-        </section>
-
-        {(notice || historyLoadError) && (
-          <div
-            className={`notice ${noticeIsError || historyLoadError ? 'error' : ''}`}
-            role="status"
-          >
-            {historyLoadError ? t`Could not load service history. Please try again.` : notice}
-          </div>
-        )}
-        <section className="stat-grid" aria-label={t`Maintenance summary`}>
-          <Stat
-            icon={<Wrench size={17} />}
-            label={t`SERVICE VISITS`}
-            value={String(totalVisits).padStart(2, '0')}
-            note={totalVisits ? recordedVisits(totalVisits) : t`Start your service history`}
-            accent="amber"
-          />
-          <Stat
-            icon={<ArrowUpRight size={17} />}
-            label={t`TOTAL SPENT · USD`}
-            value={usd(totals.usd, locale)}
-            note={t`Across all service visits`}
-            accent="green"
-          />
-          <Stat
-            icon={<Activity size={17} />}
-            label={t`TOTAL SPENT · KHR`}
-            value={khr(totals.khr, locale)}
-            note={t`Cambodian riel`}
-            accent="blue"
-          />
-          <Stat
-            icon={<Clock3 size={17} />}
-            label={t`LAST SERVICE`}
-            value={latest && daysSince !== null ? daysAgo(daysSince) : '—'}
-            note={latest ? dateLabel(latest.serviceDate, locale) : t`No visits yet`}
-            accent="violet"
-          />
-        </section>
-
-        <section className="content-grid">
-          <div className="primary-column">
-            <div className="section-heading" id="garage">
+        {activeSection === 'remarks' ? (
+          <RemarkManagement />
+        ) : (
+          <>
+            <section className="welcome">
               <div>
-                <div className="eyebrow">{t`YOUR VEHICLES`}</div>
-                <h2>
-                  <Trans>Garage</Trans>{' '}
-                  <span className="subcount">{vehicles.length.toString().padStart(2, '0')}</span>
-                </h2>
+                <div className="eyebrow">
+                  <Sparkles size={13} /> {t`YOUR GARAGE, IN GOOD ORDER`}
+                </div>
+                <h1>{greeting ? t`Good ${greeting}, ${name}.` : t`Welcome, ${name}.`}</h1>
+                <p>{t`Stay ahead of every mile. Your vehicle care, all in one place.`}</p>
               </div>
-              <button
-                className="button quiet"
-                onClick={() => {
-                  setEditingVehicle(null)
-                  setDialog('vehicle')
-                }}
+            </section>
+
+            {(notice || historyLoadError) && (
+              <div
+                className={`notice ${noticeIsError || historyLoadError ? 'error' : ''}`}
+                role="status"
               >
-                <CirclePlus size={16} /> {t`Add Motor Vehicle`}
-              </button>
-            </div>
-            {vehicles.length ? (
-              <div className="vehicle-list">
-                {vehicles.map((vehicle) => (
-                  <button
-                    key={vehicle.id}
-                    className={`vehicle-card ${vehicle.id === selected?.id ? 'selected' : ''}`}
-                    onClick={() => selectVehicle(vehicle.id)}
-                    aria-pressed={vehicle.id === selected?.id}
-                  >
-                    <span className="vehicle-icon">
-                      {vehicle.name.toLowerCase().includes('motor') ||
-                      vehicle.name.toLowerCase().includes('bike') ? (
-                        <Bike size={20} />
-                      ) : (
-                        <CarFront size={21} />
-                      )}
-                    </span>
-                    <span className="vehicle-info">
-                      <strong>{vehicle.name}</strong>
-                      <small>
-                        {vehicle.plateNumber || t`No plate number`}
-                        {vehicle.id === selected?.id && (
-                          <>
-                            {' '}
-                            <i />{' '}
-                            {historyLoading
-                              ? '…'
-                              : `${records.length} ${vehicleVisits(records.length)}`}
-                          </>
-                        )}
-                      </small>
-                    </span>
-                    <span className="vehicle-select">
-                      {vehicle.id === selected?.id ? (
-                        <Check size={15} />
-                      ) : (
-                        <ArrowDownRight size={15} />
-                      )}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <div className="empty-garage">
-                <div className="empty-icon">
-                  <CarFront size={23} />
-                </div>
-                <strong>{t`Your garage is ready`}</strong>
-                <span>{t`Add your first vehicle to start tracking its care.`}</span>
-                <button
-                  className="button primary"
-                  onClick={() => {
-                    setEditingVehicle(null)
-                    setDialog('vehicle')
-                  }}
-                >
-                  <CirclePlus size={16} /> {t`Add your first vehicle`}
-                </button>
+                {historyLoadError ? t`Could not load service history. Please try again.` : notice}
               </div>
             )}
+            <section className="stat-grid" aria-label={t`Maintenance summary`}>
+              <Stat
+                icon={<Wrench size={17} />}
+                label={t`SERVICE VISITS`}
+                value={String(totalVisits).padStart(2, '0')}
+                note={totalVisits ? recordedVisits(totalVisits) : t`Start your service history`}
+                accent="amber"
+              />
+              <Stat
+                icon={<ArrowUpRight size={17} />}
+                label={t`TOTAL SPENT · USD`}
+                value={usd(totals.usd, locale)}
+                note={t`Across all service visits`}
+                accent="green"
+              />
+              <Stat
+                icon={<Activity size={17} />}
+                label={t`TOTAL SPENT · KHR`}
+                value={khr(totals.khr, locale)}
+                note={t`Cambodian riel`}
+                accent="blue"
+              />
+              <Stat
+                icon={<Clock3 size={17} />}
+                label={t`LAST SERVICE`}
+                value={latest && daysSince !== null ? daysAgo(daysSince) : '—'}
+                note={latest ? dateLabel(latest.serviceDate, locale) : t`No visits yet`}
+                accent="violet"
+              />
+            </section>
 
-            <div className="section-heading history-heading" id="timeline">
-              <div>
-                <div className="eyebrow">{t`THE COMPLETE PICTURE`}</div>
-                <h2>{t`Service history`}</h2>
-              </div>
-              <div className="history-actions">
-                <label className="search-field">
-                  <Search size={15} />
-                  <input
-                    aria-label={t`Filter service items`}
-                    placeholder={t`Find a part or service`}
-                    value={query}
-                    onChange={(event) => setQuery(event.target.value)}
-                  />
-                </label>
-                {selected && (
-                  <Link
-                    className="export-button"
-                    href={`/vehicles/${selected.id}/print`}
-                    target="_blank"
-                  >
-                    <FileText size={15} /> {t`Report`}
-                  </Link>
-                )}
-                <button
-                  className="button primary log-service-button"
-                  onClick={() => setDialog('service')}
-                  disabled={!selected}
-                >
-                  <CirclePlus size={15} /> {t`Log a service`}
-                </button>
-              </div>
-            </div>
-
-            {!selected ? (
-              <div className="empty-history">
-                <div className="empty-icon">
-                  <Wrench size={22} />
-                </div>
-                <strong>{t`Your maintenance timeline starts here`}</strong>
-                <span>{t`Add a vehicle, then log each service visit and its parts.`}</span>
-              </div>
-            ) : historyLoading ? (
-              <div className="empty-history" aria-live="polite">
-                <div className="empty-icon">
-                  <Wrench size={22} />
-                </div>
-                <strong>{t`Loading service history...`}</strong>
-              </div>
-            ) : filtered.length ? (
-              <div className="timeline">
-                {filtered.map((record, index) => {
-                  const sum = maintenanceTotals(record.items)
-                  return (
-                    <article className="timeline-row" key={record.id}>
-                      <div className="timeline-rail">
-                        <span className="timeline-node">
-                          {index === 0 ? <span className="node-core" /> : null}
-                        </span>
-                      </div>
-                      <div className="record-card">
-                        <header className="record-head">
-                          <div>
-                            <span className="record-date">
-                              {dateLabel(record.serviceDate, locale)}
-                            </span>
-                            <span className="record-meta">
-                              {record.odometerKm ? (
-                                <span
-                                  className={`record-odometer${index === 0 ? '' : ' record-odometer-previous'}`}
-                                >
-                                  <Gauge size={13} aria-hidden="true" />
-                                  {record.odometerKm.toLocaleString()} km
-                                </span>
-                              ) : (
-                                t`Service visit`
-                              )}
-                              {index === 0 ? <b className="latest-tag">{t`LATEST`}</b> : null}
-                            </span>
-                          </div>
-                          <div className="record-controls">
-                            <button
-                              aria-label={t`Edit service record`}
-                              onClick={() => {
-                                setEditing(record)
-                                setDialog('service')
-                              }}
-                            >
-                              <Eye size={15} />
-                            </button>
-                            <button
-                              aria-label={t`Delete service record`}
-                              onClick={() =>
-                                setConfirmation({ type: 'record', recordId: record.id })
-                              }
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          </div>
-                        </header>
-                        <div className="item-list">
-                          {record.items.map((item) => (
-                            <div className="service-item" key={item.id}>
-                              <span className="item-check">
-                                <Check size={12} />
-                              </span>
-                              <span className="item-name">
-                                {item.remark} × {item.quantity}
-                              </span>
-                              <span className="item-price">
-                                {usd(item.quantity * Number(item.priceUsd), locale)}
-                              </span>
-                              <span className="item-price khr-price">
-                                {khr(item.quantity * Number(item.priceKhr), locale)}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                        <footer className="record-total">
-                          <span>{t`VISIT TOTAL`}</span>
-                          <strong>{usd(sum.usd, locale)}</strong>
-                          <strong>{khr(sum.khr, locale)}</strong>
-                        </footer>
-                      </div>
-                    </article>
-                  )
-                })}
-                <div className="timeline-end">{t`↑  CHRONOLOGICAL PROGRESSION`}</div>
-              </div>
-            ) : (
-              <div className="empty-history">
-                <div className="empty-icon">
-                  <Search size={21} />
-                </div>
-                <strong>{query ? t`No matching service items` : t`No service visits yet`}</strong>
-                <span>
-                  {query
-                    ? t`Try another part name or clear your search.`
-                    : t`Your maintenance entries will appear here.`}
-                </span>
-                {!query && (
-                  <button className="text-button" onClick={() => setDialog('service')}>
-                    {t`Add the first service record`} <ArrowUpRight size={14} />
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-          <aside className="insight-column">
-            <div className="insight-card focus-card">
-              <div className="insight-top">
-                <span className="insight-icon">
-                  <Gauge size={17} />
-                </span>
-                <span className="insight-kicker">{t`CURRENT VEHICLE`}</span>
-              </div>
-              {selected ? (
-                <>
-                  <h3>{selected.name}</h3>
-                  <div className="plate-chip">{selected.plateNumber || t`PLATE NOT ADDED`}</div>
-                  <div className="insight-divider" />
-                  <div className="insight-data">
-                    <span>{t`Visits tracked`}</span>
-                    <strong>
-                      {historyLoading ? '—' : String(records.length).padStart(2, '0')}
-                    </strong>
-                  </div>
-                  <div className="insight-data">
-                    <span>{t`Last service`}</span>
-                    <strong>{latest ? dateLabel(latest.serviceDate, locale) : '—'}</strong>
-                  </div>
-                  <div className="insight-data">
-                    <span>{t`Lifetime spend`}</span>
-                    <strong>{usd(totals.usd, locale)}</strong>
+            <section className="content-grid">
+              <div className="primary-column">
+                <div className="section-heading" id="garage">
+                  <div>
+                    <div className="eyebrow">{t`YOUR VEHICLES`}</div>
+                    <h2>
+                      <Trans>Garage</Trans>{' '}
+                      <span className="subcount">
+                        {vehicles.length.toString().padStart(2, '0')}
+                      </span>
+                    </h2>
                   </div>
                   <button
-                    className="text-button"
+                    className="button quiet"
                     onClick={() => {
-                      setEditingVehicle(selected)
+                      setEditingVehicle(null)
                       setDialog('vehicle')
                     }}
                   >
-                    <PenLine size={14} /> {t`Edit vehicle details`}
+                    <CirclePlus size={16} /> {t`Add Motor Vehicle`}
                   </button>
-                  <button
-                    className="remove-vehicle"
-                    onClick={() =>
-                      setConfirmation({
-                        type: 'vehicle',
-                        vehicleId: selected.id,
-                        vehicleName: selected.name,
-                      })
-                    }
-                  >
-                    <Trash2 size={14} /> {t`Remove vehicle`}
-                  </button>
-                </>
-              ) : (
-                <p className="muted">{t`Choose a vehicle to see its details.`}</p>
-              )}
-            </div>
-            <div className="tip-card">
-              <div className="tip-icon">
-                <Sparkles size={16} />
+                </div>
+                {vehicles.length ? (
+                  <div className="vehicle-list">
+                    {vehicles.map((vehicle) => (
+                      <button
+                        key={vehicle.id}
+                        className={`vehicle-card ${vehicle.id === selected?.id ? 'selected' : ''}`}
+                        onClick={() => selectVehicle(vehicle.id)}
+                        aria-pressed={vehicle.id === selected?.id}
+                      >
+                        <span className="vehicle-icon">
+                          {vehicle.name.toLowerCase().includes('motor') ||
+                          vehicle.name.toLowerCase().includes('bike') ? (
+                            <Bike size={20} />
+                          ) : (
+                            <CarFront size={21} />
+                          )}
+                        </span>
+                        <span className="vehicle-info">
+                          <strong>{vehicle.name}</strong>
+                          <small>
+                            {vehicle.plateNumber || t`No plate number`}
+                            {vehicle.id === selected?.id && (
+                              <>
+                                {' '}
+                                <i />{' '}
+                                {historyLoading
+                                  ? '…'
+                                  : `${records.length} ${vehicleVisits(records.length)}`}
+                              </>
+                            )}
+                          </small>
+                        </span>
+                        <span className="vehicle-select">
+                          {vehicle.id === selected?.id ? (
+                            <Check size={15} />
+                          ) : (
+                            <ArrowDownRight size={15} />
+                          )}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="empty-garage">
+                    <div className="empty-icon">
+                      <CarFront size={23} />
+                    </div>
+                    <strong>{t`Your garage is ready`}</strong>
+                    <span>{t`Add your first vehicle to start tracking its care.`}</span>
+                    <button
+                      className="button primary"
+                      onClick={() => {
+                        setEditingVehicle(null)
+                        setDialog('vehicle')
+                      }}
+                    >
+                      <CirclePlus size={16} /> {t`Add your first vehicle`}
+                    </button>
+                  </div>
+                )}
+
+                <div className="section-heading history-heading" id="timeline">
+                  <div>
+                    <div className="eyebrow">{t`THE COMPLETE PICTURE`}</div>
+                    <h2>{t`Service history`}</h2>
+                  </div>
+                  <div className="history-actions">
+                    <label className="search-field">
+                      <Search size={15} />
+                      <input
+                        aria-label={t`Filter service items`}
+                        placeholder={t`Find a part or service`}
+                        value={query}
+                        onChange={(event) => setQuery(event.target.value)}
+                      />
+                    </label>
+                    {selected && (
+                      <Link
+                        className="export-button"
+                        href={`/vehicles/${selected.id}/print`}
+                        target="_blank"
+                      >
+                        <FileText size={15} /> {t`Report`}
+                      </Link>
+                    )}
+                    <button
+                      className="button primary log-service-button"
+                      onClick={() => setDialog('service')}
+                      disabled={!selected}
+                    >
+                      <CirclePlus size={15} /> {t`Log a service`}
+                    </button>
+                  </div>
+                </div>
+
+                {!selected ? (
+                  <div className="empty-history">
+                    <div className="empty-icon">
+                      <Wrench size={22} />
+                    </div>
+                    <strong>{t`Your maintenance timeline starts here`}</strong>
+                    <span>{t`Add a vehicle, then log each service visit and its parts.`}</span>
+                  </div>
+                ) : historyLoading ? (
+                  <div className="empty-history" aria-live="polite">
+                    <div className="empty-icon">
+                      <Wrench size={22} />
+                    </div>
+                    <strong>{t`Loading service history...`}</strong>
+                  </div>
+                ) : filtered.length ? (
+                  <div className="timeline">
+                    {filtered.map((record, index) => {
+                      const sum = maintenanceTotals(record.items)
+                      return (
+                        <article className="timeline-row" key={record.id}>
+                          <div className="timeline-rail">
+                            <span className="timeline-node">
+                              {index === 0 ? <span className="node-core" /> : null}
+                            </span>
+                          </div>
+                          <div className="record-card">
+                            <header className="record-head">
+                              <div>
+                                <span className="record-date">
+                                  {dateLabel(record.serviceDate, locale)}
+                                </span>
+                                <span className="record-meta">
+                                  {record.odometerKm ? (
+                                    <span
+                                      className={`record-odometer${index === 0 ? '' : ' record-odometer-previous'}`}
+                                    >
+                                      <Gauge size={13} aria-hidden="true" />
+                                      {record.odometerKm.toLocaleString()} km
+                                    </span>
+                                  ) : (
+                                    t`Service visit`
+                                  )}
+                                  {index === 0 ? <b className="latest-tag">{t`LATEST`}</b> : null}
+                                </span>
+                              </div>
+                              <div className="record-controls">
+                                <button
+                                  aria-label={t`Edit service record`}
+                                  onClick={() => {
+                                    setEditing(record)
+                                    setDialog('service')
+                                  }}
+                                >
+                                  <Edit size={15} />
+                                </button>
+                                <button
+                                  className="delete-record-button"
+                                  aria-label={t`Delete service record`}
+                                  onClick={() =>
+                                    setConfirmation({ type: 'record', recordId: record.id })
+                                  }
+                                >
+                                  <Trash2 size={15} />
+                                </button>
+                              </div>
+                            </header>
+                            <div className="item-list">
+                              {record.items.map((item) => (
+                                <div className="service-item" key={item.id}>
+                                  <span className="item-check">
+                                    <Check size={12} />
+                                  </span>
+                                  <span className="item-name">{item.remark}</span>
+                                  <span
+                                    className="item-price"
+                                    aria-hidden={Number(item.priceUsd) === 0}
+                                  >
+                                    {Number(item.priceUsd) !== 0 &&
+                                      usd(Number(item.priceUsd), locale)}
+                                  </span>
+                                  <span
+                                    className="item-price khr-price"
+                                    aria-hidden={Number(item.priceKhr) === 0}
+                                  >
+                                    {Number(item.priceKhr) !== 0 &&
+                                      khr(Number(item.priceKhr), locale)}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                            <footer className="record-total">
+                              <span>{t`VISIT TOTAL`}</span>
+                              <strong aria-hidden={sum.usd === 0}>
+                                {sum.usd !== 0 && usd(sum.usd, locale)}
+                              </strong>
+                              <strong aria-hidden={sum.khr === 0}>
+                                {sum.khr !== 0 && khr(sum.khr, locale)}
+                              </strong>
+                            </footer>
+                          </div>
+                        </article>
+                      )
+                    })}
+                    <div className="timeline-end">{t`↑  CHRONOLOGICAL PROGRESSION`}</div>
+                  </div>
+                ) : (
+                  <div className="empty-history">
+                    <div className="empty-icon">
+                      <Search size={21} />
+                    </div>
+                    <strong>
+                      {query ? t`No matching service items` : t`No service visits yet`}
+                    </strong>
+                    <span>
+                      {query
+                        ? t`Try another part name or clear your search.`
+                        : t`Your maintenance entries will appear here.`}
+                    </span>
+                    {!query && (
+                      <button className="text-button" onClick={() => setDialog('service')}>
+                        {t`Add the first service record`} <ArrowUpRight size={14} />
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
-              <span className="insight-kicker">{t`A LITTLE HEAD START`}</span>
-              <h3>
-                {t`Small checks.`}
-                <br />
-                {t`Longer journeys.`}
-              </h3>
-              <p>
-                {t`Keep service dates and mileage up to date to spot patterns in your vehicle care.`}
-              </p>
-            </div>
-            <div className="privacy-line">
-              <ShieldCheck size={15} />
-              <span>{t`Private by design. Your records belong to your account.`}</span>
-            </div>
-          </aside>
-        </section>
+              <aside className="insight-column">
+                <div className="insight-card focus-card">
+                  <div className="insight-top">
+                    <span className="insight-icon">
+                      <Gauge size={17} />
+                    </span>
+                    <span className="insight-kicker">{t`CURRENT VEHICLE`}</span>
+                  </div>
+                  {selected ? (
+                    <>
+                      <h3>{selected.name}</h3>
+                      <div className="plate-chip">{selected.plateNumber || t`PLATE NOT ADDED`}</div>
+                      <div className="insight-divider" />
+                      <div className="insight-data">
+                        <span>{t`Visits tracked`}</span>
+                        <strong>
+                          {historyLoading ? '—' : String(records.length).padStart(2, '0')}
+                        </strong>
+                      </div>
+                      <div className="insight-data">
+                        <span>{t`Last service`}</span>
+                        <strong>{latest ? dateLabel(latest.serviceDate, locale) : '—'}</strong>
+                      </div>
+                      <div className="insight-data">
+                        <span>{t`Lifetime spend`}</span>
+                        <strong>{usd(totals.usd, locale)}</strong>
+                      </div>
+                      <button
+                        className="text-button"
+                        onClick={() => {
+                          setEditingVehicle(selected)
+                          setDialog('vehicle')
+                        }}
+                      >
+                        <PenLine size={14} /> {t`Edit vehicle details`}
+                      </button>
+                      <button
+                        className="remove-vehicle"
+                        onClick={() =>
+                          setConfirmation({
+                            type: 'vehicle',
+                            vehicleId: selected.id,
+                            vehicleName: selected.name,
+                          })
+                        }
+                      >
+                        <Trash2 size={14} /> {t`Remove vehicle`}
+                      </button>
+                    </>
+                  ) : (
+                    <p className="muted">{t`Choose a vehicle to see its details.`}</p>
+                  )}
+                </div>
+                <div className="tip-card">
+                  <div className="tip-icon">
+                    <Sparkles size={16} />
+                  </div>
+                  <span className="insight-kicker">{t`A LITTLE HEAD START`}</span>
+                  <h3>
+                    {t`Small checks.`}
+                    <br />
+                    {t`Longer journeys.`}
+                  </h3>
+                  <p>
+                    {t`Keep service dates and mileage up to date to spot patterns in your vehicle care.`}
+                  </p>
+                </div>
+                <div className="privacy-line">
+                  <ShieldCheck size={15} />
+                  <span>{t`Private by design. Your records belong to your account.`}</span>
+                </div>
+              </aside>
+            </section>
+          </>
+        )}
       </main>
 
       {dialog === 'vehicle' && (
@@ -743,6 +809,243 @@ function Stat({
       <strong className="stat-value">{value}</strong>
       <span className="stat-note">{note}</span>
     </article>
+  )
+}
+
+function RemarkManagement() {
+  const { t } = useLingui()
+  const remarkColumns = useMemo<ColumnDefinition<RemarkOption>[]>(
+    () => [
+      {
+        key: 'name',
+        label: t`Remark name`,
+        type: 'string',
+      },
+    ],
+    [t],
+  )
+  const [query, setQuery] = useState('')
+  const [name, setName] = useState('')
+  const [remarks, setRemarks] = useState<RemarkOption[]>([])
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [loadError, setLoadError] = useState('')
+  const [saveError, setSaveError] = useState('')
+  const [notice, setNotice] = useState('')
+
+  useEffect(() => {
+    let cancelled = false
+    const timer = window.setTimeout(() => {
+      setLoading(true)
+      setLoadError('')
+      searchMaintenanceRemarks(query)
+        .then((results) => {
+          if (!cancelled) setRemarks(results)
+        })
+        .catch((error: unknown) => {
+          if (cancelled) return
+          setLoadError(
+            error instanceof Error ? error.message : t`Could not load remarks. Please try again.`,
+          )
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false)
+        })
+    }, 200)
+
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
+  }, [query, t])
+
+  async function addRemark(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const trimmedName = name.trim()
+    if (!trimmedName || saving) return
+
+    setSaving(true)
+    setSaveError('')
+    setNotice('')
+    try {
+      const createdName = await createMaintenanceRemark(trimmedName)
+      setName('')
+      setQuery(createdName)
+      setNotice(t`Remark added.`)
+    } catch (error) {
+      setSaveError(
+        error instanceof Error
+          ? error.message === 'Remark already exists'
+            ? t`A remark with this name already exists.`
+            : error.message
+          : t`Could not save remark. Please try again.`,
+      )
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <section className="remark-catalog" id="remarks">
+      <div className="section-heading">
+        <div>
+          <div className="eyebrow">{t`REUSABLE SERVICE NAMES`}</div>
+          <h2>{t`Remarks`}</h2>
+        </div>
+      </div>
+      <p className="remark-description">
+        {t`Create unique remarks here to use them when logging service work.`}
+      </p>
+      <form className="remark-create-form" onSubmit={addRemark}>
+        <label className="form-label">
+          {t`Remark name`}
+          <input
+            required
+            maxLength={160}
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder={t`e.g. Change engine oil`}
+          />
+        </label>
+        <button className="button primary" type="submit" disabled={!name.trim() || saving}>
+          <CirclePlus size={15} /> {saving ? t`Adding...` : t`Add remark`}
+        </button>
+      </form>
+      {saveError && (
+        <p className="remark-feedback error" role="alert">
+          {saveError}
+        </p>
+      )}
+      {notice && (
+        <p className="remark-feedback success" role="status">
+          {notice}
+        </p>
+      )}
+      <label className="search-field remark-search">
+        <Search size={15} />
+        <input
+          aria-label={t`Search remarks`}
+          placeholder={t`Filter remarks by name`}
+          maxLength={160}
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+      </label>
+      <p className="remark-result-limit">{t`Showing up to 20 matching remarks.`}</p>
+      {loadError ? (
+        <p className="remark-feedback error" role="alert">
+          {loadError}
+        </p>
+      ) : loading ? (
+        <p className="remark-list-state" aria-live="polite">
+          {t`Loading remarks...`}
+        </p>
+      ) : (
+        <StandardTable
+          data={remarks}
+          columns={remarkColumns}
+          className="remark-table"
+          enableColumnVisibility={false}
+          itemsPerPageOptions={[5, 10, 20]}
+          defaultItemsPerPage={10}
+          paginationStorageKey="maintenance-remarks"
+          showFooter={false}
+          emptyStateMessage={query ? t`No matching remarks.` : t`No remarks yet. Add one above.`}
+        />
+      )}
+    </section>
+  )
+}
+
+function RemarkPicker({
+  value,
+  onSelect,
+  label,
+  placeholder,
+  inputClassName,
+}: {
+  value: string
+  onSelect: (name: string) => void
+  label: string
+  placeholder?: string
+  inputClassName?: string
+}) {
+  const { t } = useLingui()
+  const listId = useId()
+  const [query, setQuery] = useState(value)
+  const [options, setOptions] = useState<RemarkOption[]>([])
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    const timer = window.setTimeout(() => {
+      setLoading(true)
+      setOptions([])
+      setError('')
+      searchMaintenanceRemarks(query)
+        .then((results) => {
+          if (!cancelled) setOptions(results)
+        })
+        .catch((searchError: unknown) => {
+          if (cancelled) return
+          setOptions([])
+          setError(
+            searchError instanceof Error
+              ? searchError.message
+              : t`Could not load remarks. Please try again.`,
+          )
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false)
+        })
+    }, 200)
+
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
+  }, [query, t])
+
+  useEffect(() => {
+    if (query && options.some((option) => option.name === query)) onSelect(query)
+  }, [onSelect, options, query])
+
+  function updateQuery(nextValue: string) {
+    setQuery(nextValue)
+    onSelect(options.some((option) => option.name === nextValue) ? nextValue : '')
+  }
+
+  return (
+    <div className="remark-picker">
+      <input
+        className={inputClassName}
+        type="text"
+        list={listId}
+        autoComplete="off"
+        maxLength={160}
+        aria-label={label}
+        placeholder={placeholder}
+        value={query}
+        onChange={(event) => updateQuery(event.target.value)}
+      />
+      <datalist id={listId}>
+        {options.map((option) => (
+          <option value={option.name} key={option.id} />
+        ))}
+      </datalist>
+      {loading && <span className="remark-picker-message">{t`Searching remarks...`}</span>}
+      {!loading && !error && options.length === 0 && (
+        <span className="remark-picker-message">
+          {t`No matching remarks. Create one from Remarks in the sidebar.`}
+        </span>
+      )}
+      {error && (
+        <span className="remark-picker-message error" role="alert">
+          {error}
+        </span>
+      )}
+    </div>
   )
 }
 
@@ -837,7 +1140,7 @@ function ServiceDialog({
     vehicleId: string
     serviceDate: string
     odometerKm?: number
-    items: { remark: string; quantity: number; priceUsd: number; priceKhr: number }[]
+    items: { remark: string; priceUsd: number; priceKhr: number }[]
   }) => void
 }) {
   const { t } = useLingui()
@@ -849,7 +1152,6 @@ function ServiceDialog({
   const [items, setItems] = useState(
     initial?.items.map((item) => ({
       remark: item.remark,
-      quantity: item.quantity,
       priceUsd: item.priceUsd,
       priceKhr: item.priceKhr,
     })) ?? [],
@@ -857,25 +1159,20 @@ function ServiceDialog({
   const [editingItem, setEditingItem] = useState<{
     index: number
     remark: string
-    quantity: string
     priceUsd: string
     priceKhr: string
   } | null>(null)
   const [itemConfirmation, setItemConfirmation] = useState<{ index: number } | null>(null)
   const [draftRemark, setDraftRemark] = useState('')
-  const [draftQuantity, setDraftQuantity] = useState('1')
   const [draftPriceUsd, setDraftPriceUsd] = useState('0')
   const [draftPriceKhr, setDraftPriceKhr] = useState('0')
   const [isAddingItem, setIsAddingItem] = useState(initial === null)
   const draftInputSelection = useRef(new WeakMap<HTMLInputElement, boolean>())
-  const subtotalUsd = items.reduce(
-    (sum, item) => sum + item.quantity * Number(item.priceUsd || 0),
-    0,
-  )
-  const subtotalKhr = items.reduce(
-    (sum, item) => sum + item.quantity * Number(item.priceKhr || 0),
-    0,
-  )
+  const selectEditedRemark = useCallback((remark: string) => {
+    setEditingItem((current) => (current ? { ...current, remark } : current))
+  }, [])
+  const subtotalUsd = items.reduce((sum, item) => sum + Number(item.priceUsd || 0), 0)
+  const subtotalKhr = items.reduce((sum, item) => sum + Number(item.priceKhr || 0), 0)
   function toggleDraftInputSelection(input: HTMLInputElement) {
     const isSelected = draftInputSelection.current.get(input) ?? false
     if (isSelected) {
@@ -886,14 +1183,12 @@ function ServiceDialog({
     draftInputSelection.current.set(input, !isSelected)
   }
   function addItem() {
-    const quantity = Number(draftQuantity)
     const priceUsd = Number(draftPriceUsd || 0)
     const priceKhr = Number(draftPriceKhr || 0)
     if (
       !draftRemark.trim() ||
-      !isValidQuantity(draftQuantity) ||
-      !isValidAmount(draftPriceUsd, 99999999.999999) ||
-      !isValidAmount(draftPriceKhr, 99999999999999.999999)
+      !isValidAmount(draftPriceUsd, 1e24) ||
+      !isValidAmount(draftPriceKhr, 1e24)
     ) {
       return
     }
@@ -901,13 +1196,11 @@ function ServiceDialog({
       ...current,
       {
         remark: draftRemark.trim(),
-        quantity,
         priceUsd: String(priceUsd),
         priceKhr: String(priceKhr),
       },
     ])
     setDraftRemark('')
-    setDraftQuantity('1')
     setDraftPriceUsd('0')
     setDraftPriceKhr('0')
     setIsAddingItem(false)
@@ -918,7 +1211,6 @@ function ServiceDialog({
     if (!original) return false
     return (
       editingItem.remark.trim() !== original.remark ||
-      Number(editingItem.quantity) !== original.quantity ||
       Number(editingItem.priceUsd || 0) !== Number(original.priceUsd || 0) ||
       Number(editingItem.priceKhr || 0) !== Number(original.priceKhr || 0)
     )
@@ -928,9 +1220,8 @@ function ServiceDialog({
       !editingItem ||
       !hasEditingItemChanges() ||
       !editingItem.remark.trim() ||
-      !isValidQuantity(editingItem.quantity) ||
-      !isValidAmount(editingItem.priceUsd, 99999999.999999) ||
-      !isValidAmount(editingItem.priceKhr, 99999999999999.999999)
+      !isValidAmount(editingItem.priceUsd, 1e24) ||
+      !isValidAmount(editingItem.priceKhr, 1e24)
     ) {
       return
     }
@@ -939,7 +1230,6 @@ function ServiceDialog({
         index === editingItem.index
           ? {
               remark: editingItem.remark.trim(),
-              quantity: Number(editingItem.quantity),
               priceUsd: String(Number(editingItem.priceUsd || 0)),
               priceKhr: String(Number(editingItem.priceKhr || 0)),
             }
@@ -971,7 +1261,6 @@ function ServiceDialog({
               odometerKm: odometerKm ? Number(odometerKm) : undefined,
               items: items.map((item) => ({
                 remark: item.remark,
-                quantity: item.quantity,
                 priceUsd: Number(item.priceUsd || 0),
                 priceKhr: Number(item.priceKhr || 0),
               })),
@@ -1024,26 +1313,11 @@ function ServiceDialog({
             <div className="item-entry-form" id="item-entry-form">
               <label className="form-label item-entry-remark">
                 {t`Remark`}
-                <input
-                  maxLength={160}
-                  placeholder={t`e.g. Change engine oil`}
+                <RemarkPicker
+                  label={t`Remark`}
+                  placeholder={t`Search or select a remark`}
                   value={draftRemark}
-                  onChange={(event) => setDraftRemark(event.target.value)}
-                />
-              </label>
-              <label className="form-label">
-                {t`Quantity`}
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={9}
-                  value={draftQuantity}
-                  onBlur={(event) => draftInputSelection.current.delete(event.currentTarget)}
-                  onClick={(event) => toggleDraftInputSelection(event.currentTarget)}
-                  onChange={(event) => {
-                    const value = limitIntegerInput(event.target.value)
-                    if (value !== null) setDraftQuantity(value)
-                  }}
+                  onSelect={setDraftRemark}
                 />
               </label>
               <label className="form-label">
@@ -1051,7 +1325,7 @@ function ServiceDialog({
                 <input
                   type="text"
                   inputMode="decimal"
-                  maxLength={15}
+                  maxLength={31}
                   value={draftPriceUsd}
                   onBlur={(event) => draftInputSelection.current.delete(event.currentTarget)}
                   onClick={(event) => toggleDraftInputSelection(event.currentTarget)}
@@ -1066,7 +1340,7 @@ function ServiceDialog({
                 <input
                   type="text"
                   inputMode="decimal"
-                  maxLength={21}
+                  maxLength={31}
                   value={draftPriceKhr}
                   onBlur={(event) => draftInputSelection.current.delete(event.currentTarget)}
                   onClick={(event) => toggleDraftInputSelection(event.currentTarget)}
@@ -1082,9 +1356,8 @@ function ServiceDialog({
                 onClick={addItem}
                 disabled={
                   !draftRemark.trim() ||
-                  !isValidQuantity(draftQuantity) ||
-                  !isValidAmount(draftPriceUsd, 99999999.999999) ||
-                  !isValidAmount(draftPriceKhr, 99999999999999.999999) ||
+                  !isValidAmount(draftPriceUsd, 1e24) ||
+                  !isValidAmount(draftPriceKhr, 1e24) ||
                   items.length >= 30 ||
                   editingItem !== null
                 }
@@ -1098,11 +1371,8 @@ function ServiceDialog({
               <thead>
                 <tr>
                   <th scope="col">{t`Remark`}</th>
-                  <th scope="col">{t`Quantity`}</th>
                   <th scope="col">{t`Price`} USD ($)</th>
                   <th scope="col">{t`Price`} KHR (៛)</th>
-                  <th scope="col">{t`Subtotal`} USD ($)</th>
-                  <th scope="col">{t`Subtotal`} KHR (៛)</th>
                   <th scope="col">
                     <span className="sr-only">{t`Actions`}</span>
                   </th>
@@ -1111,7 +1381,7 @@ function ServiceDialog({
               <tbody>
                 {items.length === 0 ? (
                   <tr>
-                    <td className="empty-items" colSpan={7}>{t`No work or parts added yet`}</td>
+                    <td className="empty-items" colSpan={4}>{t`No work or parts added yet`}</td>
                   </tr>
                 ) : (
                   items.map((item, index) => (
@@ -1119,28 +1389,11 @@ function ServiceDialog({
                       {editingItem?.index === index ? (
                         <>
                           <td>
-                            <input
-                              className="line-item-input"
-                              aria-label={t`Remark`}
-                              maxLength={160}
+                            <RemarkPicker
+                              label={t`Remark`}
+                              inputClassName="line-item-input"
                               value={editingItem.remark}
-                              onChange={(event) =>
-                                setEditingItem({ ...editingItem, remark: event.target.value })
-                              }
-                            />
-                          </td>
-                          <td>
-                            <input
-                              className="line-item-input"
-                              aria-label={t`Quantity`}
-                              inputMode="numeric"
-                              maxLength={9}
-                              value={editingItem.quantity}
-                              onChange={(event) => {
-                                const value = limitIntegerInput(event.target.value)
-                                if (value !== null)
-                                  setEditingItem({ ...editingItem, quantity: value })
-                              }}
+                              onSelect={selectEditedRemark}
                             />
                           </td>
                           <td>
@@ -1148,7 +1401,7 @@ function ServiceDialog({
                               className="line-item-input"
                               aria-label={t`Price USD`}
                               inputMode="decimal"
-                              maxLength={15}
+                              maxLength={31}
                               value={editingItem.priceUsd}
                               onChange={(event) => {
                                 const value = limitDecimalInput(event.target.value)
@@ -1162,7 +1415,7 @@ function ServiceDialog({
                               className="line-item-input"
                               aria-label={t`Price KHR`}
                               inputMode="decimal"
-                              maxLength={21}
+                              maxLength={31}
                               value={editingItem.priceKhr}
                               onChange={(event) => {
                                 const value = limitDecimalInput(event.target.value)
@@ -1170,18 +1423,6 @@ function ServiceDialog({
                                   setEditingItem({ ...editingItem, priceKhr: value })
                               }}
                             />
-                          </td>
-                          <td>
-                            {usd(
-                              Number(editingItem.quantity) * Number(editingItem.priceUsd || 0),
-                              locale,
-                            )}
-                          </td>
-                          <td>
-                            {khr(
-                              Number(editingItem.quantity) * Number(editingItem.priceKhr || 0),
-                              locale,
-                            )}
                           </td>
                           <td>
                             <div className="line-item-actions">
@@ -1192,9 +1433,8 @@ function ServiceDialog({
                                 disabled={
                                   !hasEditingItemChanges() ||
                                   !editingItem.remark.trim() ||
-                                  !isValidQuantity(editingItem.quantity) ||
-                                  !isValidAmount(editingItem.priceUsd, 99999999.999999) ||
-                                  !isValidAmount(editingItem.priceKhr, 99999999999999.999999)
+                                  !isValidAmount(editingItem.priceUsd, 1e24) ||
+                                  !isValidAmount(editingItem.priceKhr, 1e24)
                                 }
                                 onClick={saveEditedItem}
                               >
@@ -1214,11 +1454,8 @@ function ServiceDialog({
                       ) : (
                         <>
                           <td>{item.remark}</td>
-                          <td>{item.quantity}</td>
                           <td>{usd(Number(item.priceUsd), locale)}</td>
                           <td>{khr(Number(item.priceKhr), locale)}</td>
-                          <td>{usd(item.quantity * Number(item.priceUsd), locale)}</td>
-                          <td>{khr(item.quantity * Number(item.priceKhr), locale)}</td>
                           <td>
                             <div className="line-item-actions">
                               <button
@@ -1230,7 +1467,6 @@ function ServiceDialog({
                                   setEditingItem({
                                     index,
                                     remark: item.remark,
-                                    quantity: String(item.quantity),
                                     priceUsd: normalizeDecimalInput(item.priceUsd),
                                     priceKhr: normalizeDecimalInput(item.priceKhr),
                                   })

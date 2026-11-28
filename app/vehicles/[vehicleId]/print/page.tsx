@@ -36,7 +36,6 @@ export default async function PrintReport({ params }: { params: Promise<{ vehicl
         .select({
           recordId: maintenanceItems.maintenanceRecordId,
           remark: maintenanceItems.remark,
-          quantity: maintenanceItems.quantity,
           priceUsd: maintenanceItems.priceUsd,
           priceKhr: maintenanceItems.priceKhr,
         })

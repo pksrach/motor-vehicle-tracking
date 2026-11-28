@@ -11,7 +11,6 @@ import { khr, usd } from '@/lib/utils'
 type ReportEntry = {
   recordId: string
   remark: string
-  quantity: number
   priceUsd: string
   priceKhr: string
   date: string
@@ -74,11 +73,8 @@ export function PrintReport({
               <th>#</th>
               <th>{t`Date`}</th>
               <th>{t`Maintenance remark / part`}</th>
-              <th>{t`Quantity`}</th>
               <th>{t`Price`} USD ($)</th>
               <th>{t`Price`} KHR (៛)</th>
-              <th>{t`Subtotal`} USD ($)</th>
-              <th>{t`Subtotal`} KHR (៛)</th>
             </tr>
           </thead>
           <tbody>
@@ -93,23 +89,20 @@ export function PrintReport({
                     </td>
                   )}
                   <td>{item.remark}</td>
-                  <td>{item.quantity}</td>
                   <td>{usd(Number(item.priceUsd), locale)}</td>
                   <td>{khr(Number(item.priceKhr), locale)}</td>
-                  <td>{usd(item.quantity * Number(item.priceUsd), locale)}</td>
-                  <td>{khr(item.quantity * Number(item.priceKhr), locale)}</td>
                 </tr>
               )
             })}
             {!entries.length && (
               <tr>
-                <td colSpan={8} className="report-empty">
+                <td colSpan={5} className="report-empty">
                   {t`No maintenance entries recorded yet.`}
                 </td>
               </tr>
             )}
             <tr className="report-total">
-              <td colSpan={6}>{t`GRAND TOTAL`}</td>
+              <td colSpan={3}>{t`GRAND TOTAL`}</td>
               <td>{usd(totals.usd, locale)}</td>
               <td>{khr(totals.khr, locale)}</td>
             </tr>

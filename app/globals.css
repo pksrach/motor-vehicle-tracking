@@ -670,10 +670,112 @@ body {
   margin-top: 30px;
   align-items: center;
 }
+.history-heading h2 {
+  font-size: 20px;
+}
 .history-actions {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+.remark-catalog {
+  max-width: 860px;
+  margin-top: 32px;
+  scroll-margin-top: 24px;
+}
+.remark-catalog .section-heading {
+  margin-bottom: 6px;
+}
+.remark-catalog .section-heading h2 {
+  font-size: 23px;
+}
+.remark-description {
+  margin: 0 0 14px;
+  color: #939ba8;
+  font-size: 10px;
+}
+.remark-create-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 9px;
+}
+.remark-create-form .form-label {
+  min-width: 0;
+  margin-bottom: 0;
+}
+.remark-create-form .button {
+  min-height: 37px;
+  white-space: nowrap;
+}
+.remark-search {
+  width: 100%;
+  margin: 14px 0 5px;
+}
+.remark-picker {
+  width: 100%;
+  min-width: 0;
+}
+.remark-picker > input {
+  width: 100%;
+  color-scheme: dark;
+  background: #121720;
+  color: #eee;
+  border-color: #363e4b;
+}
+.remark-table {
+  --background: #191f29;
+  --foreground: #dadddf;
+  --card: #191f29;
+  --card-foreground: #dadddf;
+  --popover: #191f29;
+  --popover-foreground: #dadddf;
+  --primary: #e5ae5c;
+  --primary-foreground: #191f29;
+  --secondary: #242b35;
+  --secondary-foreground: #e5e5e1;
+  --muted: #242b35;
+  --muted-foreground: #939ba8;
+  --accent: #242b35;
+  --accent-foreground: #e5e5e1;
+  --border: #2a313c;
+  --input: #303743;
+  --ring: #e5ae5c;
+  background: #191f29;
+  color: #dadddf;
+}
+.remark-picker-message {
+  display: block;
+  margin-top: 4px;
+  color: #89909e;
+  font-size: 9px;
+  font-weight: 400;
+}
+.remark-feedback {
+  margin: 8px 0;
+  font-size: 10px;
+}
+.remark-feedback.error,
+.remark-picker-message.error {
+  color: #f0aaa2;
+}
+.remark-feedback.success {
+  color: #87c6a3;
+}
+.remark-result-limit {
+  margin: 4px 0 8px;
+  color: #89909e;
+  font-size: 9px;
+}
+.remark-list-state {
+  margin: 0;
+  padding: 9px 11px;
+  border: 1px solid #2a313c;
+  border-radius: 7px;
+  background: #191f29;
+  color: #939ba8;
+  font-size: 10px;
+  text-align: center;
 }
 .log-service-button {
   flex-shrink: 0;
@@ -762,7 +864,7 @@ body {
   background: #f1b85e;
 }
 .record-card {
-  padding: 0 14px;
+  overflow: hidden;
   background: #191f29;
   border: 1px solid #2a313c;
   border-radius: 9px;
@@ -772,6 +874,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 14px;
+  background: #242b35;
   border-bottom: 1px solid #2a313c;
 }
 .record-head > div:first-child {
@@ -780,13 +884,13 @@ body {
   gap: 10px;
 }
 .record-date {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 650;
   color: #edece8;
 }
 .record-meta {
   color: #8d96a2;
-  font-size: 9px;
+  font-size: 11px;
 }
 .record-odometer {
   display: inline-flex;
@@ -839,8 +943,13 @@ body {
   background: #2c333e;
   color: #f0ad4e;
 }
+.record-controls .delete-record-button:hover {
+  background: #3a2428;
+  color: #f0aaa2;
+}
 .item-list {
-  padding: 6px 0;
+  padding: 6px 14px;
+  background: #191f29;
 }
 .service-item {
   min-height: 30px;
@@ -859,13 +968,13 @@ body {
   color: #85c49d;
 }
 .item-name {
-  font-size: 10px;
+  font-size: 12px;
   color: #d3d6d9;
 }
 .item-price {
   text-align: right;
   color: #d7d8d8;
-  font-size: 9px;
+  font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
 .khr-price {
@@ -877,17 +986,19 @@ body {
   grid-template-columns: 1fr 75px 90px;
   align-items: center;
   gap: 7px;
+  padding: 0 14px;
+  background: #222a34;
   border-top: 1px solid #2a313c;
 }
 .record-total span {
-  font-size: 8px;
+  font-size: 9px;
   color: #88919e;
   font-weight: 700;
   letter-spacing: 0.9px;
 }
 .record-total strong {
   text-align: right;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 650;
 }
 .timeline-end {
@@ -1146,7 +1257,7 @@ body {
 }
 .item-entry-form {
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.45fr) minmax(0, 0.7fr) minmax(0, 0.7fr) auto;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr) minmax(0, 0.7fr) auto;
   align-items: end;
   gap: 9px;
   margin-bottom: 12px;
@@ -1197,10 +1308,7 @@ body {
 .line-items-table td:first-child {
   padding-left: 12px;
 }
-.line-items-table th:nth-child(2) {
-  width: 55px;
-}
-.line-items-table th:nth-child(n + 3):nth-child(-n + 6) {
+.line-items-table th:nth-child(n + 2):nth-child(-n + 3) {
   width: 105px;
 }
 .line-items-table th:last-child {
@@ -1648,6 +1756,9 @@ body {
   .section-heading h2 {
     font-size: 16px;
   }
+  .history-heading h2 {
+    font-size: 18px;
+  }
   .history-heading {
     align-items: flex-start;
     flex-direction: column;
@@ -1663,8 +1774,11 @@ body {
     gap: 8px;
     grid-template-columns: 17px minmax(0, 1fr);
   }
-  .record-card {
-    padding: 0 10px;
+  .record-head,
+  .item-list,
+  .record-total {
+    padding-right: 10px;
+    padding-left: 10px;
   }
   .record-head > div:first-child {
     align-items: flex-start;
@@ -1673,7 +1787,7 @@ body {
     padding: 8px 0;
   }
   .record-date {
-    font-size: 10px;
+    font-size: 11px;
   }
   .service-item {
     grid-template-columns: 15px minmax(70px, 1fr) 53px 62px;
@@ -1684,14 +1798,14 @@ body {
     gap: 5px;
   }
   .item-name {
-    font-size: 9px;
+    font-size: 11px;
   }
   .item-price,
   .record-total strong {
-    font-size: 8px;
+    font-size: 10px;
   }
   .record-total span {
-    font-size: 7px;
+    font-size: 8px;
   }
   .insight-column {
     grid-template-columns: 1fr;

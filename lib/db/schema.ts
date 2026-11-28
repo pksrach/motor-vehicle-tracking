@@ -1,4 +1,5 @@
-import { pgTable, text, timestamp, integer, numeric, index } from 'drizzle-orm/pg-core'
+import { sql } from 'drizzle-orm'
+import { pgTable, text, timestamp, integer, numeric, index, uniqueIndex } from 'drizzle-orm/pg-core'
 
 export const users = pgTable('user', {
   id: text('id').primaryKey(),
@@ -49,10 +50,23 @@ export const maintenanceItems = pgTable(
     id: text('id').primaryKey(),
     maintenanceRecordId: text('maintenanceRecordId').notNull(),
     remark: text('remark').notNull(),
-    quantity: numeric('quantity', { precision: 12, scale: 3, mode: 'number' }).notNull().default(1),
-    priceUsd: numeric('priceUsd', { precision: 14, scale: 6 }).notNull().default('0'),
-    priceKhr: numeric('priceKhr', { precision: 20, scale: 6 }).notNull().default('0'),
+    priceUsd: numeric('priceUsd', { precision: 30, scale: 6 }).notNull().default('0'),
+    priceKhr: numeric('priceKhr', { precision: 30, scale: 6 }).notNull().default('0'),
     createdAt: timestamp('createdAt', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [index('maintenance_item_record_idx').on(table.maintenanceRecordId)],
+)
+
+export const maintenanceRemarks = pgTable(
+  'maintenance_remark',
+  {
+    id: text('id').primaryKey(),
+    userId: text('userId').notNull(),
+    name: text('name').notNull(),
+    createdAt: timestamp('createdAt', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updatedAt', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('maintenance_remark_user_name_unique').on(table.userId, sql`lower(${table.name})`),
+  ],
 )

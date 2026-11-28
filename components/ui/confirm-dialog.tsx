@@ -1,12 +1,12 @@
 'use client'
 
-import { useId, type MouseEvent, type KeyboardEvent } from 'react'
+import { useId, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react'
 import { useLingui } from '@lingui/react/macro'
 
 type ConfirmDialogProps = {
-  title: string
-  description: string
-  confirmLabel: string
+  title: ReactNode
+  description: ReactNode
+  confirmLabel: ReactNode
   confirmVariant?: 'danger' | 'primary'
   onConfirm: () => void
   onCancel: () => void

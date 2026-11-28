@@ -26,10 +26,6 @@ function formatLocale(locale: Locale) {
   return locale === 'km' ? 'km-KH' : 'en-US'
 }
 
-export function limitIntegerInput(value: string) {
-  return /^\d*$/.test(value) ? value : null
-}
-
 export function limitDecimalInput(value: string) {
   if (!/^\d*\.?\d*$/.test(value)) return null
   const [whole, fraction] = value.split('.')
@@ -45,13 +41,8 @@ export function normalizeDecimalInput(value: string | number) {
 export function isValidAmount(value: string, max: number) {
   const amount = Number(value)
   return (
-    Number.isFinite(amount) && amount >= 0 && amount <= max && Number(amount.toFixed(6)) === amount
+    Number.isFinite(amount) && amount >= 0 && amount < max && Number(amount.toFixed(6)) === amount
   )
-}
-
-export function isValidQuantity(value: string) {
-  const quantity = Number(value)
-  return Number.isInteger(quantity) && quantity > 0 && quantity <= 999999999
 }
 
 export function usd(value: number, locale: Locale) {
@@ -86,7 +77,6 @@ export function dateLabel(value: string, locale: Locale) {
 }
 
 type MaintenanceCostItem = {
-  quantity: number
   priceUsd: string
   priceKhr: string
 }
@@ -94,8 +84,8 @@ type MaintenanceCostItem = {
 export function maintenanceTotals(items: readonly MaintenanceCostItem[]) {
   return items.reduce(
     (totals, item) => ({
-      usd: totals.usd + item.quantity * Number(item.priceUsd),
-      khr: totals.khr + item.quantity * Number(item.priceKhr),
+      usd: totals.usd + Number(item.priceUsd),
+      khr: totals.khr + Number(item.priceKhr),
     }),
     { usd: 0, khr: 0 },
   )
