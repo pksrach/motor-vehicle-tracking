@@ -46,6 +46,7 @@ import {
   limitDecimalInput,
   limitIntegerInput,
   maintenanceTotals,
+  normalizeDecimalInput,
   usd,
 } from '@/lib/utils'
 
@@ -851,13 +852,12 @@ function ServiceDialog({
     priceUsd: string
     priceKhr: string
   } | null>(null)
-  const [itemConfirmation, setItemConfirmation] = useState<
-    { type: 'update' } | { type: 'remove'; index: number } | null
-  >(null)
+  const [itemConfirmation, setItemConfirmation] = useState<{ index: number } | null>(null)
   const [draftRemark, setDraftRemark] = useState('')
   const [draftQuantity, setDraftQuantity] = useState('1')
   const [draftPriceUsd, setDraftPriceUsd] = useState('0')
   const [draftPriceKhr, setDraftPriceKhr] = useState('0')
+  const [isAddingItem, setIsAddingItem] = useState(false)
   const draftInputSelection = useRef(new WeakMap<HTMLInputElement, boolean>())
   const subtotalUsd = items.reduce(
     (sum, item) => sum + item.quantity * Number(item.priceUsd || 0),
@@ -901,6 +901,7 @@ function ServiceDialog({
     setDraftQuantity('1')
     setDraftPriceUsd('0')
     setDraftPriceKhr('0')
+    setIsAddingItem(false)
   }
   function saveEditedItem() {
     if (
@@ -912,27 +913,23 @@ function ServiceDialog({
     ) {
       return
     }
-    setItemConfirmation({ type: 'update' })
+    setItems((current) =>
+      current.map((item, index) =>
+        index === editingItem.index
+          ? {
+              remark: editingItem.remark.trim(),
+              quantity: Number(editingItem.quantity),
+              priceUsd: String(Number(editingItem.priceUsd || 0)),
+              priceKhr: String(Number(editingItem.priceKhr || 0)),
+            }
+          : item,
+      ),
+    )
+    setEditingItem(null)
   }
-  function confirmItemAction() {
+  function confirmItemRemoval() {
     if (!itemConfirmation) return
-    if (itemConfirmation.type === 'update' && editingItem) {
-      setItems((current) =>
-        current.map((item, index) =>
-          index === editingItem.index
-            ? {
-                remark: editingItem.remark.trim(),
-                quantity: Number(editingItem.quantity),
-                priceUsd: String(Number(editingItem.priceUsd || 0)),
-                priceKhr: String(Number(editingItem.priceKhr || 0)),
-              }
-            : item,
-        ),
-      )
-      setEditingItem(null)
-    } else if (itemConfirmation.type === 'remove') {
-      setItems((current) => current.filter((_, index) => index !== itemConfirmation.index))
-    }
+    setItems((current) => current.filter((_, index) => index !== itemConfirmation.index))
     setItemConfirmation(null)
   }
   return (
@@ -985,78 +982,96 @@ function ServiceDialog({
           </div>
           <div className="line-items-title">
             <strong>{t`Work & parts`}</strong>
-          </div>
-          <div className="item-entry-form">
-            <label className="form-label item-entry-remark">
-              {t`Remark`}
-              <input
-                maxLength={160}
-                placeholder={t`e.g. Change engine oil`}
-                value={draftRemark}
-                onChange={(event) => setDraftRemark(event.target.value)}
-              />
-            </label>
-            <label className="form-label">
-              {t`Quantity`}
-              <input
-                type="text"
-                inputMode="numeric"
-                maxLength={9}
-                value={draftQuantity}
-                onBlur={(event) => draftInputSelection.current.delete(event.currentTarget)}
-                onClick={(event) => toggleDraftInputSelection(event.currentTarget)}
-                onChange={(event) => {
-                  const value = limitIntegerInput(event.target.value)
-                  if (value !== null) setDraftQuantity(value)
-                }}
-              />
-            </label>
-            <label className="form-label">
-              {t`Price`} USD ($)
-              <input
-                type="text"
-                inputMode="decimal"
-                maxLength={15}
-                value={draftPriceUsd}
-                onBlur={(event) => draftInputSelection.current.delete(event.currentTarget)}
-                onClick={(event) => toggleDraftInputSelection(event.currentTarget)}
-                onChange={(event) => {
-                  const value = limitDecimalInput(event.target.value)
-                  if (value !== null) setDraftPriceUsd(value)
-                }}
-              />
-            </label>
-            <label className="form-label">
-              {t`Price`} KHR (៛)
-              <input
-                type="text"
-                inputMode="decimal"
-                maxLength={21}
-                value={draftPriceKhr}
-                onBlur={(event) => draftInputSelection.current.delete(event.currentTarget)}
-                onClick={(event) => toggleDraftInputSelection(event.currentTarget)}
-                onChange={(event) => {
-                  const value = limitDecimalInput(event.target.value)
-                  if (value !== null) setDraftPriceKhr(value)
-                }}
-              />
-            </label>
             <button
               type="button"
               className="button quiet item-add-button"
-              onClick={addItem}
-              disabled={
-                !draftRemark.trim() ||
-                !isValidQuantity(draftQuantity) ||
-                !isValidAmount(draftPriceUsd, 99999999.999999) ||
-                !isValidAmount(draftPriceKhr, 99999999999999.999999) ||
-                items.length >= 30 ||
-                editingItem !== null
-              }
+              aria-expanded={isAddingItem}
+              aria-controls="item-entry-form"
+              disabled={!isAddingItem && (items.length >= 30 || editingItem !== null)}
+              onClick={() => setIsAddingItem((current) => !current)}
             >
-              <CirclePlus size={14} /> {t`Add item`}
+              {isAddingItem ? (
+                t`Cancel`
+              ) : (
+                <>
+                  <CirclePlus size={14} /> {t`Add item`}
+                </>
+              )}
             </button>
           </div>
+          {isAddingItem && (
+            <div className="item-entry-form" id="item-entry-form">
+              <label className="form-label item-entry-remark">
+                {t`Remark`}
+                <input
+                  maxLength={160}
+                  placeholder={t`e.g. Change engine oil`}
+                  value={draftRemark}
+                  onChange={(event) => setDraftRemark(event.target.value)}
+                />
+              </label>
+              <label className="form-label">
+                {t`Quantity`}
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={9}
+                  value={draftQuantity}
+                  onBlur={(event) => draftInputSelection.current.delete(event.currentTarget)}
+                  onClick={(event) => toggleDraftInputSelection(event.currentTarget)}
+                  onChange={(event) => {
+                    const value = limitIntegerInput(event.target.value)
+                    if (value !== null) setDraftQuantity(value)
+                  }}
+                />
+              </label>
+              <label className="form-label">
+                {t`Price`} USD ($)
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  maxLength={15}
+                  value={draftPriceUsd}
+                  onBlur={(event) => draftInputSelection.current.delete(event.currentTarget)}
+                  onClick={(event) => toggleDraftInputSelection(event.currentTarget)}
+                  onChange={(event) => {
+                    const value = limitDecimalInput(event.target.value)
+                    if (value !== null) setDraftPriceUsd(value)
+                  }}
+                />
+              </label>
+              <label className="form-label">
+                {t`Price`} KHR (៛)
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  maxLength={21}
+                  value={draftPriceKhr}
+                  onBlur={(event) => draftInputSelection.current.delete(event.currentTarget)}
+                  onClick={(event) => toggleDraftInputSelection(event.currentTarget)}
+                  onChange={(event) => {
+                    const value = limitDecimalInput(event.target.value)
+                    if (value !== null) setDraftPriceKhr(value)
+                  }}
+                />
+              </label>
+              <button
+                type="button"
+                className="button quiet item-add-button"
+                onClick={addItem}
+                disabled={
+                  !draftRemark.trim() ||
+                  !isValidQuantity(draftQuantity) ||
+                  !isValidAmount(draftPriceUsd, 99999999.999999) ||
+                  !isValidAmount(draftPriceKhr, 99999999999999.999999) ||
+                  items.length >= 30 ||
+                  editingItem !== null
+                }
+              >
+                <CirclePlus size={14} /> {t`Add item`}
+              </button>
+            </div>
+          )}
           <div className="line-items-table-wrap">
             <table className="line-items-table">
               <thead>
@@ -1194,8 +1209,8 @@ function ServiceDialog({
                                     index,
                                     remark: item.remark,
                                     quantity: String(item.quantity),
-                                    priceUsd: item.priceUsd,
-                                    priceKhr: item.priceKhr,
+                                    priceUsd: normalizeDecimalInput(item.priceUsd),
+                                    priceKhr: normalizeDecimalInput(item.priceKhr),
                                   })
                                 }
                               >
@@ -1206,7 +1221,7 @@ function ServiceDialog({
                                 className="remove-line"
                                 aria-label={t`Remove line item`}
                                 disabled={editingItem !== null}
-                                onClick={() => setItemConfirmation({ type: 'remove', index })}
+                                onClick={() => setItemConfirmation({ index })}
                               >
                                 <X size={15} />
                               </button>
@@ -1241,16 +1256,12 @@ function ServiceDialog({
       </Modal>
       {itemConfirmation && (
         <ConfirmDialog
-          title={itemConfirmation.type === 'update' ? t`Update line item?` : t`Remove line item?`}
-          description={
-            itemConfirmation.type === 'update'
-              ? t`Save these changes to the line item?`
-              : t`This removes the line item from this service visit.`
-          }
-          confirmLabel={itemConfirmation.type === 'update' ? t`Update item` : t`Remove item`}
-          confirmVariant={itemConfirmation.type === 'update' ? 'primary' : 'danger'}
+          title={t`Remove line item?`}
+          description={t`This removes the line item from this service visit.`}
+          confirmLabel={t`Remove item`}
+          confirmVariant="danger"
           onCancel={() => setItemConfirmation(null)}
-          onConfirm={confirmItemAction}
+          onConfirm={confirmItemRemoval}
         />
       )}
     </>

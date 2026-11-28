@@ -36,6 +36,12 @@ export function limitDecimalInput(value: string) {
   return fraction === undefined ? whole : `${whole}.${fraction.slice(0, 6)}`
 }
 
+export function normalizeDecimalInput(value: string | number) {
+  const amount = Number(value)
+  if (!Number.isFinite(amount)) return '0'
+  return amount.toFixed(6).replace(/0+$/, '').replace(/\.$/, '')
+}
+
 export function isValidAmount(value: string, max: number) {
   const amount = Number(value)
   return (
@@ -52,14 +58,14 @@ export function usd(value: number, locale: Locale) {
   return new Intl.NumberFormat(formatLocale(locale), {
     style: 'currency',
     currency: 'USD',
-    minimumFractionDigits: 6,
+    minimumFractionDigits: 2,
     maximumFractionDigits: 6,
   }).format(value)
 }
 
 export function khr(value: number, locale: Locale) {
   return `${new Intl.NumberFormat(formatLocale(locale), {
-    minimumFractionDigits: 6,
+    minimumFractionDigits: 0,
     maximumFractionDigits: 6,
   }).format(value)} ៛`
 }
