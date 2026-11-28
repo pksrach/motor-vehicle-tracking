@@ -17,8 +17,10 @@ import {
   ChevronDown,
   CirclePlus,
   Clock3,
+  Eye,
   FileText,
   Gauge,
+  Pencil,
   PenLine,
   Search,
   Settings2,
@@ -321,13 +323,6 @@ export function TrackerDashboard({
             <h1>{greeting ? t`Good ${greeting}, ${name}.` : t`Welcome, ${name}.`}</h1>
             <p>{t`Stay ahead of every mile. Your vehicle care, all in one place.`}</p>
           </div>
-          <button
-            className="button primary"
-            onClick={() => setDialog('service')}
-            disabled={!selected}
-          >
-            <CirclePlus size={17} /> {t`Log a service`}
-          </button>
         </section>
 
         {(notice || historyLoadError) && (
@@ -474,6 +469,13 @@ export function TrackerDashboard({
                     <FileText size={15} /> {t`Report`}
                   </Link>
                 )}
+                <button
+                  className="button primary log-service-button"
+                  onClick={() => setDialog('service')}
+                  disabled={!selected}
+                >
+                  <CirclePlus size={15} /> {t`Log a service`}
+                </button>
               </div>
             </div>
 
@@ -510,9 +512,16 @@ export function TrackerDashboard({
                               {dateLabel(record.serviceDate, locale)}
                             </span>
                             <span className="record-meta">
-                              {record.odometerKm
-                                ? `${record.odometerKm.toLocaleString()} km`
-                                : t`Service visit`}
+                              {record.odometerKm ? (
+                                <span
+                                  className={`record-odometer${index === 0 ? '' : ' record-odometer-previous'}`}
+                                >
+                                  <Gauge size={13} aria-hidden="true" />
+                                  {record.odometerKm.toLocaleString()} km
+                                </span>
+                              ) : (
+                                t`Service visit`
+                              )}
                               {index === 0 ? <b className="latest-tag">{t`LATEST`}</b> : null}
                             </span>
                           </div>
@@ -524,7 +533,7 @@ export function TrackerDashboard({
                                 setDialog('service')
                               }}
                             >
-                              <Settings2 size={15} />
+                              <Eye size={15} />
                             </button>
                             <button
                               aria-label={t`Delete service record`}
@@ -857,7 +866,7 @@ function ServiceDialog({
   const [draftQuantity, setDraftQuantity] = useState('1')
   const [draftPriceUsd, setDraftPriceUsd] = useState('0')
   const [draftPriceKhr, setDraftPriceKhr] = useState('0')
-  const [isAddingItem, setIsAddingItem] = useState(false)
+  const [isAddingItem, setIsAddingItem] = useState(initial === null)
   const draftInputSelection = useRef(new WeakMap<HTMLInputElement, boolean>())
   const subtotalUsd = items.reduce(
     (sum, item) => sum + item.quantity * Number(item.priceUsd || 0),
@@ -903,9 +912,21 @@ function ServiceDialog({
     setDraftPriceKhr('0')
     setIsAddingItem(false)
   }
+  function hasEditingItemChanges() {
+    if (!editingItem) return false
+    const original = items[editingItem.index]
+    if (!original) return false
+    return (
+      editingItem.remark.trim() !== original.remark ||
+      Number(editingItem.quantity) !== original.quantity ||
+      Number(editingItem.priceUsd || 0) !== Number(original.priceUsd || 0) ||
+      Number(editingItem.priceKhr || 0) !== Number(original.priceKhr || 0)
+    )
+  }
   function saveEditedItem() {
     if (
       !editingItem ||
+      !hasEditingItemChanges() ||
       !editingItem.remark.trim() ||
       !isValidQuantity(editingItem.quantity) ||
       !isValidAmount(editingItem.priceUsd, 99999999.999999) ||
@@ -1169,6 +1190,7 @@ function ServiceDialog({
                                 className="line-item-action"
                                 aria-label={t`Save line item`}
                                 disabled={
+                                  !hasEditingItemChanges() ||
                                   !editingItem.remark.trim() ||
                                   !isValidQuantity(editingItem.quantity) ||
                                   !isValidAmount(editingItem.priceUsd, 99999999.999999) ||
@@ -1214,7 +1236,7 @@ function ServiceDialog({
                                   })
                                 }
                               >
-                                <PenLine size={14} />
+                                <Pencil size={14} />
                               </button>
                               <button
                                 type="button"

@@ -675,6 +675,15 @@ body {
   align-items: center;
   gap: 8px;
 }
+.log-service-button {
+  flex-shrink: 0;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 10px;
+  gap: 6px;
+  white-space: nowrap;
+  font-size: 9px;
+}
 .search-field {
   height: 32px;
   width: 180px;
@@ -778,6 +787,25 @@ body {
 .record-meta {
   color: #8d96a2;
   font-size: 9px;
+}
+.record-odometer {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px;
+  border: 1px solid #efad4d45;
+  border-radius: 5px;
+  background: #f0ad4e1b;
+  color: #edb561;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1;
+  white-space: nowrap;
+}
+.record-odometer-previous {
+  border-color: #3a414d;
+  background: #252b35;
+  color: #aab2bd;
 }
 .latest-tag {
   margin-left: 8px;
